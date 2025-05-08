@@ -64,16 +64,14 @@ public class GlobalExceptionHandler {
                 .body(new ResponseDTO<>(e.getResponseCode().getCode(), e.getMessage(), null, null));
     }
 
-    // jwt 403 관련
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ResponseDTO<Void>> handleAccessDeniedException(AccessDeniedException e) {
+    public ResponseEntity<ResponseDTO<Void>> handleAccessDenied(AccessDeniedException e) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(ResponseDTO.error(ResponseCode.FORBIDDEN));
     }
 
-    // jwt 401 관련
     @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<ResponseDTO<Void>> handleAccessDeniedException(AuthenticationException e) {
+    public ResponseEntity<ResponseDTO<Void>> handleAuthentication(AuthenticationException e) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(ResponseDTO.error(ResponseCode.UNAUTHORIZED));
     }
