@@ -12,8 +12,6 @@
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="tikitaka" target="21" />
-      <module name="tikitaka.main" target="21" />
-      <module name="tikitaka.test" target="21" />
     </bytecodeTargetLevel>
   </component>
 </project>
