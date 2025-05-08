@@ -17,6 +17,7 @@ public enum ResponseCode {
     PARAMETER_NOT_EXIST(HttpStatus.BAD_REQUEST, "PARAMETER_NOT_EXIST", "파라미터가 존재 하지 않습니다."),
     INVALID_PARSING_INPUT(HttpStatus.BAD_REQUEST, "INVALID_PARSING_INPUT", "입력값 형식이 잘못 되었습니다. (parsing 오류)"),
     DUPLICATED_NICKNAME(HttpStatus.BAD_REQUEST, "DUPLICATED_NICKNAME", "이미 사용중인 닉네임 입니다."),
+    DUPLICATED_EMAIL(HttpStatus.BAD_REQUEST, "DUPLICATED_EMAIL", "이미 사용중인 이메일 입니다."),
 
     // ✅ 401 Unauthorized
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "UNAUTHORIZED", "인증이 필요합니다. 로그인 후 이용해주세요."),
