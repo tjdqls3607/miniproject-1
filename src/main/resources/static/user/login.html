@@ -14,8 +14,34 @@
         <input type="password" id="password" name="password" required value="password">
     </div>
     <br>
+    <button onclick="login()">로그인</button>
+
+    <hr>
     <a href="/user/signup.html">회원가입</a>
     <hr>
     <a href="../index.html">홈 화면</a>
+    <script>
+         function login() {
+             const email = document.getElementById('email').value;
+             const password = document.getElementById('password').value;
+
+             fetch('/auth/login', {
+                 method: 'POST',
+                 headers: {'Content-Type' : 'application/json'},
+                 body: JSON.stringify({email, password})
+             })
+             .then(response => response.json())
+                 .then(data => {
+                     if (data.token) {
+                         localStorage.setItem('token', data.token);
+                         alert('로그인 성공');
+                         window.location.href='../index.html';
+                     } else {
+                         alert('로그인 실패!')
+                     }
+                 });
+         }
+
+    </script>
 </body>
 </html>

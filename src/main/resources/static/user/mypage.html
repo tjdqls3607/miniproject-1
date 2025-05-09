@@ -1,11 +1,40 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>마이페이지</title>
+    <script>
+        // 🟢 내 참여 매칭 목록 조회
+        function loadMyParticipations() {
+            const userId = prompt("당신의 User ID를 입력하세요:");
+            fetch(`/user-game/my-participations?userId=${userId}`)
+                .then(response => response.json())
+                .then(data => {
+                    alert("참가한 매칭 개수: " + data.length);
+                    console.log(data);
+                });
+        }
+
+        // 🟢 내가 주최한 매칭 목록 조회
+        function loadMyCreatedMatches() {
+            const userId = prompt("당신의 User ID를 입력하세요:");
+            fetch(`/user-game/my-created?userId=${userId}`)
+                .then(response => response.json())
+                .then(data => {
+                    alert("주최한 매칭 개수: " + data.length);
+                    console.log(data);
+                });
+        }
+
+    </script>
 </head>
 <body>
-    <h2>내 정보</h2>
-    <a href="../index.html">홈 화면</a>
+<h2>내 정보 (마이페이지)</h2>
+<hr>
+<a href="../index.html">홈 화면</a>
+
+<h3>✅ 매칭 관리</h3>
+<button onclick="loadMyParticipations()">내가 참가한 매칭 목록</button>
+<button onclick="loadMyCreatedMatches()">내가 주최한 매칭 목록</button>
 </body>
 </html>

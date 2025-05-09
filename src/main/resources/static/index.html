@@ -7,6 +7,8 @@
 <body>
     <h2>홈 - 풋살 경기 조회</h2>
     <hr>
+    <h1 id="welcomeMsg">환영합니다!</h1>
+    <hr>
     <a href="/user/login.html">로그인</a>
     <hr>
     <a href="/user/signup.html">회원가입</a>
@@ -16,5 +18,27 @@
     <a href="/game/matching.html">매칭</a>
     <hr>
     <a href="/user/mypage.html">마이페이지</a>
+
+
+
+    <script>
+        // 저장된 토큰 가져오기
+        const token = localStorage.getItem('token');
+
+        if (token) {
+            fetch('/user/me', {
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('welcomeMsg').innerText = `환영합니다 "${data.nickname}"님`;
+                });
+        } else {
+            document.getElementById('welcomeMsg').innerText = '로그인 해주세요';
+        }
+    </script>
+
 </body>
 </html>
