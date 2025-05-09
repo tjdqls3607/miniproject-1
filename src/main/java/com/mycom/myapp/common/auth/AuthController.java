@@ -62,6 +62,8 @@ public class AuthController {
     public ResponseEntity<?> getCurrentUser(Authentication authentication) {
         String username = authentication.getName();
         User user = userService.findByEmail(username).orElseThrow(() -> new RuntimeException("User not found"));
-        return ResponseEntity.ok(Map.of("nickname", user.getNickname()));
+        return ResponseEntity.ok(Map.of(
+                "userId", user.getId(),
+                "nickname", user.getNickname()));
     }
 }

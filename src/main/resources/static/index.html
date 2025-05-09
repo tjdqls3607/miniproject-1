@@ -35,6 +35,7 @@
                 .then(response => response.json())
                 .then(data => {
                     document.getElementById('welcomeMsg').innerText = `환영합니다 "${data.nickname}"님`;
+                    localStorage.setItem('userId', data.userId);
                 });
         } else {
             document.getElementById('welcomeMsg').innerText = '로그인 해주세요';

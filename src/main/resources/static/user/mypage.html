@@ -4,37 +4,70 @@
     <meta charset="UTF-8">
     <title>마이페이지</title>
     <script>
-        // 🟢 내 참여 매칭 목록 조회
-        function loadMyParticipations() {
-            const userId = prompt("당신의 User ID를 입력하세요:");
+        // ✅ 현재 로그인한 유저 정보 가져오기
+        // const userId = localStorage.getItem('userId');
+        // fetch(`/user-game/my-participations?userId=${userId}`)
+        function loadCurrentUserAndMatches() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert("로그인이 필요합니다!");
+                return;
+            }
+
+            // 🟢 1단계: /auth/user/me 호출해서 userId 가져오기
+            fetch('/auth/user/me', {
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('유저 정보 가져오기 실패');
+                    }
+                    return response.json();
+                })
+                .then(userData => {
+                    const userId = userData.userId;  // ✅ 이제 userId를 여기서 가져옴
+                    document.getElementById('nickname').innerText = userData.nickname;
+
+                    // 🟢 2단계: 가져온 userId로 매칭 목록 조회
+                    loadMyParticipations(userId);
+                })
+                .catch(error => {
+                    console.error(error);
+                    alert("유저 정보 로딩 실패");
+                });
+        }
+
+        // ✅ 내 참여 매칭 목록 조회
+        function loadMyParticipations(userId) {
             fetch(`/user-game/my-participations?userId=${userId}`)
                 .then(response => response.json())
                 .then(data => {
-                    alert("참가한 매칭 개수: " + data.length);
-                    console.log(data);
+                    const listEl = document.getElementById('participationList');
+                    listEl.innerHTML = '';  // 초기화
+                    data.forEach(match => {
+                        const li = document.createElement('li');
+                        li.textContent = `매칭 ID: ${match.id} | 장소: ${match.location} | 날짜: ${match.time}` ;
+                        listEl.appendChild(li);
+                    });
                 });
-        }
+        }z
 
-        // 🟢 내가 주최한 매칭 목록 조회
-        function loadMyCreatedMatches() {
-            const userId = prompt("당신의 User ID를 입력하세요:");
-            fetch(`/user-game/my-created?userId=${userId}`)
-                .then(response => response.json())
-                .then(data => {
-                    alert("주최한 매칭 개수: " + data.length);
-                    console.log(data);
-                });
-        }
-
+        // ✅ 페이지 로드 시 자동 실행
+        window.onload = loadCurrentUserAndMatches;
     </script>
 </head>
 <body>
 <h2>내 정보 (마이페이지)</h2>
+<p>닉네임: <span id="nickname"></span></p>
 <hr>
 <a href="../index.html">홈 화면</a>
 
-<h3>✅ 매칭 관리</h3>
-<button onclick="loadMyParticipations()">내가 참가한 매칭 목록</button>
-<button onclick="loadMyCreatedMatches()">내가 주최한 매칭 목록</button>
+<h3>✅ 내가 참가한 매칭 목록</h3>
+<ul id="participationList">
+    <!-- 여기에 자동으로 목록이 출력됨 -->
+</ul>
+
 </body>
 </html>
