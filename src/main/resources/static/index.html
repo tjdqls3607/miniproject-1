@@ -24,9 +24,10 @@
     <script>
         // 저장된 토큰 가져오기
         const token = localStorage.getItem('token');
+        console.log("저장된 토큰:", token);
 
         if (token) {
-            fetch('/user/me', {
+            fetch('/auth/user/me', {
                 headers: {
                     'Authorization': 'Bearer ' + token
                 }

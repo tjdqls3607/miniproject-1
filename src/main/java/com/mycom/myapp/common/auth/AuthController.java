@@ -51,6 +51,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<ResponseDTO<LoginResponse>> login(@RequestBody LoginRequest request) {
+        System.out.println("로그인 요청 들어옴: \" + request.getEmail() + \" / \" + request.getPassword()");
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
         );
@@ -60,6 +61,7 @@ public class AuthController {
     @GetMapping("/user/me")
     public ResponseEntity<?> getCurrentUser(Authentication authentication) {
         String username = authentication.getName();
-        return ResponseEntity.ok(Map.of("nickname", username));
+        User user = userService.findByEmail(username).orElseThrow(() -> new RuntimeException("User not found"));
+        return ResponseEntity.ok(Map.of("nickname", user.getNickname()));
     }
 }

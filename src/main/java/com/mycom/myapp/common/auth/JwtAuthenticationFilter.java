@@ -45,8 +45,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         Authentication authentication;
+        String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
+        System.out.println("Authorization Header raw: " + bearerToken);  // 추가
         String jwt;
         jwt = resolveToken(request);
+        System.out.println("Resolved JWT: " + jwt);
 //        System.out.println(jwt);
         if (StringUtils.hasText(jwt) && jwtTokenProvider.validateToken(jwt)) {
             authentication = jwtTokenProvider.getAuthentication(jwt);
