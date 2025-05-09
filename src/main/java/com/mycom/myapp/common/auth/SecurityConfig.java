@@ -37,7 +37,15 @@ public class SecurityConfig {
                 .sessionManagement((sessionConfig) -> sessionConfig.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests((authorizeRequests) -> {
                     authorizeRequests
-                            .requestMatchers("/auth/**").permitAll()
+                            .requestMatchers("/auth/**",
+                            		"/assets/**",
+                            		"/index.html",
+                            		"/games/list",
+                            		"/user/**",
+                            		"/user-game/**",
+                            		"/**"
+                            		)
+                            .permitAll()
                             .anyRequest().authenticated();
                 })
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
