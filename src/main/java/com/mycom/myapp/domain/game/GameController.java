@@ -24,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/game")
+@RequestMapping("/games")
 @Slf4j
 public class GameController {
     private final GameService gameService;

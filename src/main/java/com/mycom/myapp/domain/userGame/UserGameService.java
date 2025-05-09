@@ -25,9 +25,9 @@ public class UserGameService {
     private final JwtTokenProvider jwtTokenProvider;
     
     public void participateGame(Long gameId) {
-//    	User user = jwtTokenProvider.getUserFromSecurityContext();
-    	User user = userRepository.findById(11L)
-    			.orElseThrow(() -> new NotFoundException(ResponseCode.NOT_FOUND_USER));
+    	User user = jwtTokenProvider.getUserFromSecurityContext();
+//    	User user = userRepository.findById(11L)
+//    			.orElseThrow(() -> new NotFoundException(ResponseCode.NOT_FOUND_USER));
     	Long userId = user.getId();
     	Game game = gameRepository.findById(gameId)
     			.orElseThrow(() -> new NotFoundException(ResponseCode.NOT_FOUND_GAME));

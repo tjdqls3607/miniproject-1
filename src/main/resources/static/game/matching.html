@@ -100,19 +100,20 @@ async function GameDetail() {
     }
 }
 async function participateGame() {
-//     let gameId = 6; 
     const params = new URLSearchParams(window.location.search);
     const gameId = params.get('id');
     const url = `/user-game/${gameId}/participate`;
-
+    const token = localStorage.getItem('token');
     console.log(url);
     try {
         const response = await fetch(url, {
             method: "POST", 
             headers: {
+            	'Authorization': `Bearer ${token}`,
                 "Content-Type": "application/json",
             },
         });
+        console.log(response);
 
         if (response.ok) {
             const data = await response.json();
@@ -125,7 +126,7 @@ async function participateGame() {
         }
     } catch (error) {
         console.error("Error:", error);
-        alert("목록 처리 중 오류 발생!");
+        alert("처리 중 오류 발생!");
     }
 }
 </script>

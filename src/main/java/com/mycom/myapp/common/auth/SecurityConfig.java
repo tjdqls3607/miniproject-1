@@ -37,10 +37,11 @@ public class SecurityConfig {
                 .sessionManagement((sessionConfig) -> sessionConfig.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests((authorizeRequests) -> {
                     authorizeRequests
-                            .requestMatchers("/auth/**",
+                            .requestMatchers("/",
+                            		"/auth/**",
                             		"/assets/**",
                             		"/index.html",
-                            		"/game/**",
+                            		"/games/**",
                             		"/user/**",
                             		"/game/matching.html"
                             		)
