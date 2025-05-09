@@ -27,12 +27,12 @@ public class UserGameService {
     public void participateGame(Long gameId) {
 //    	User user = jwtTokenProvider.getUserFromSecurityContext();
     	User user = userRepository.findById(11L)
-    			.orElseThrow(() -> new NotFoundException(ResponseCode.SUCCESS));
+    			.orElseThrow(() -> new NotFoundException(ResponseCode.NOT_FOUND_USER));
     	Long userId = user.getId();
     	Game game = gameRepository.findById(gameId)
-    			.orElseThrow(() -> new NotFoundException(ResponseCode.SUCCESS));
+    			.orElseThrow(() -> new NotFoundException(ResponseCode.NOT_FOUND_GAME));
     	
-    	if(userGameRepository.existsByUserIdAndGameId(1L, gameId)) {
+    	if(userGameRepository.existsByUserIdAndGameId(11L, gameId)) {
     		throw new IllegalStateException("이미 신청한 게임입니다.");
     	}
     	
