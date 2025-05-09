@@ -2,10 +2,13 @@ package com.mycom.myapp.domain.game;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
 import com.mycom.myapp.common.entity.Game;
+import com.mycom.myapp.common.enums.ResponseCode;
+import com.mycom.myapp.common.error.exceptions.NotFoundException;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +30,7 @@ public class GameService {
     	List<GameDto> gamesDtoList = new ArrayList<>();
     	games.forEach( game -> {
     		GameDto gameDto = GameDto.builder()
+    				.id(game.getId())
     				.location(game.getLocation())
     				.time(game.getTime())
     				.deadline(game.getDeadline())
@@ -40,5 +44,30 @@ public class GameService {
     		
     	});
     	return gamesDtoList;
+    }
+    
+    public GameDto detailGame(long gameId) {
+    	GameDto gameDto = new GameDto();
+    	
+    	Optional<Game> gameOptional = gameRepository.findById(gameId);
+    	gameOptional.ifPresentOrElse(
+    			game -> {
+    				gameDto.setId(game.getId());
+    	            gameDto.setLocation(game.getLocation());
+    	            gameDto.setTime(game.getTime());
+    	            gameDto.setDeadline(game.getDeadline());
+    	            gameDto.setParticipantMin(game.getParticipantMin());
+    	            gameDto.setParticipantMax(game.getParticipantMax());
+    	            gameDto.setAgainstPeople(game.getAgainstPeople());
+    	            gameDto.setGameInfo(game.getGameInfo());
+    	            gameDto.setGameNoti(game.getGameNoti());
+    			}, 
+    			() -> {
+    				throw new NotFoundException(ResponseCode.NOT_FOUND_GAME);
+    			}
+    			
+    		);
+    	
+    	return gameDto;
     }
 }

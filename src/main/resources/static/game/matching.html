@@ -3,25 +3,112 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+<style>
+	#loginCheck {
+		display: none;
+	}
+</style>
 </head>
 <body>
-	
-    <h2>경기 매칭</h2>
-    <a href="../index.html">홈화면</a>
+	<nav class="navbar">
+		<div class="container d-flex justify-content-center">
+	   		<a class="navbar-brand mx-auto" href="/index.html">
+	        	<img src="/assets/img/tikitaka-logo.png" alt="Tikitaka" height="100px">
+	    	</a>
+	    	
+	    	<!-- 로그인이 안되어있으면 로그인이 뜨고 되어있으며 프로필이미지가 뜨게 -->
+	    	<div id="loginCheck">
+		    	<a href="/user/login.html" class="btn btn-primary m-1" id="btnLogin">로그인</a>
+		    	<a href="/user/signup.html" class="btn btn-primary" id="btnSignup">회원가입</a>
+		    	
+		    	<a class="navbar-brand" href="/user/mypage.html">
+		    		<img id="userProfileImage" src="/assets/img/noProfile.png" alt="User" style="width:50px; height:50px; border-radius:50%;">
+		    	</a>
+	    	</div>
+	  	</div>
+	</nav>
+    <div class="container mt-5">
+        <h1 class="text-center">Game Detail</h1>
+        <div id="game-detail" class="card shadow-lg mt-4">
+            <div class="card-body">
+                <h3 class="card-title text-primary" id="game-title"></h3>
+                <p class="card-text">
+                    <strong>Location:</strong> <span id="game-location"></span>
+                </p>
+                <p class="card-text">
+                    <strong>Time:</strong> <span id="game-time"></span>
+                </p>
+                <p class="card-text">
+                    <strong>Deadline:</strong> <span id="game-deadline"></span>
+                </p>
+                <p class="card-text">
+                    <strong>Participants:</strong> 
+                    <span id="game-participants-min"></span> ~ 
+                    <span id="game-participants-max"></span>
+                </p>
+                <p class="card-text">
+                    <strong>Against People:</strong> <span id="game-against-people"></span>
+                </p>
+                <p class="card-text">
+                    <strong>Game Info:</strong> <span id="game-info"></span>
+                </p>
+                <p class="card-text">
+                    <strong>Game Notification:</strong> <span id="game-noti"></span>
+                </p>
+            </div>
+        </div>
+    </div>
     <button id="ParticipateBtn">신청하기</button>
 
+<script src="/assets/js/common.js"></script>
 <script >
 window.onload = function() {
+    GameDetail();
     document.querySelector("#ParticipateBtn").onclick = participateGame;
 }
+
+async function GameDetail() {
+    const params = new URLSearchParams(window.location.search);
+    const gameId = params.get('id');
+    console.log(gameId);
+
+    if (!gameId) {
+        alert('Invalid game ID');
+        window.location.href = '../index.html';
+        return;
+    }
+
+    try {
+        let response = await fetch(`/games/detail/${gameId}`);
+        if (!response.ok) throw new Error('Failed to fetch game details.');
+
+        let game = await response.json();
+        document.getElementById('game-title').textContent = `Game #${gameId}`;
+        document.getElementById('game-location').textContent = game.location;
+        document.getElementById('game-time').textContent = game.time;
+        document.getElementById('game-deadline').textContent = game.deadline;
+        document.getElementById('game-participants-min').textContent = game.participantMin;
+        document.getElementById('game-participants-max').textContent = game.participantMax;
+        document.getElementById('game-against-people').textContent = game.againstPeople;
+        document.getElementById('game-info').textContent = game.gameInfo;
+        document.getElementById('game-noti').textContent = game.gameNoti;
+    } catch (error) {
+        console.error(error);
+        alert('Error loading game details.');
+    }
+}
 async function participateGame() {
-    let gameId = 6; // Game ID를 동적으로 변경 가능
+//     let gameId = 6; 
+    const params = new URLSearchParams(window.location.search);
+    const gameId = params.get('id');
     const url = `/user-game/${gameId}/participate`;
 
     console.log(url);
     try {
         const response = await fetch(url, {
-            method: "POST", // POST 요청 설정
+            method: "POST", 
             headers: {
                 "Content-Type": "application/json",
             },

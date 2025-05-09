@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/games")
+@RequestMapping("/game")
 @Slf4j
 public class GameController {
     private final GameService gameService;
@@ -60,10 +61,15 @@ public class GameController {
     }
 	
 	@GetMapping("/list")
-	public ResponseEntity<List<GameDto>> listGame(){
+	public List<GameDto> listGame(){
 		log.debug("list 출력");
-        List<GameDto> gameDtos = gameService.listGame(); // 서비스 호출
-        return ResponseEntity.ok(gameDtos); // 응답 반환
+        return gameService.listGame(); 
+	}
+	
+	@GetMapping("/detail/{gameId}")
+	public GameDto detailGame(@PathVariable("gameId") Long gameId){
+		log.debug("detail 출력");
+		return gameService.detailGame(gameId);
 	}
 	
 }

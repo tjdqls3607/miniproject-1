@@ -40,10 +40,9 @@ public class SecurityConfig {
                             .requestMatchers("/auth/**",
                             		"/assets/**",
                             		"/index.html",
-                            		"/games/list",
+                            		"/game/**",
                             		"/user/**",
-                            		"/user-game/**",
-                            		"/**"
+                            		"/game/matching.html"
                             		)
                             .permitAll()
                             .anyRequest().authenticated();
