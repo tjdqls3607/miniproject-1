@@ -23,7 +23,7 @@ public class GameController {
     private final UserService userService;
     private final JwtTokenProvider jwtTokenProvider;
     @PostMapping
-    public ResponseEntity<?> createGame(@RequestBody @Valid GameCreateRequest request) {
+    public ResponseEntity<ResponseDTO<Game>> createGame(@RequestBody @Valid GameCreateRequest request) {
         User user = jwtTokenProvider.getUserFromSecurityContext();
         Game game = Game.builder()
                 .location(request.getLocation())
@@ -37,9 +37,10 @@ public class GameController {
                 .host(user)
                 .build();
 
-        gameService.save(game);
+        game = gameService.save(game);
 
-        return ResponseEntity.ok(ResponseDTO.success(ResponseCode.CREATED, GameCreateRequest.builder()
+        return ResponseEntity.status(201).body(ResponseDTO.success(ResponseCode.CREATED, Game.builder()
+                        .id(game.getId())
                 .location(game.getLocation())
                 .time(game.getTime())
                 .deadline(game.getDeadline())

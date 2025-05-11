@@ -10,8 +10,5 @@
         <module name="miniproject-1.main" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="tikitaka" target="21" />
-    </bytecodeTargetLevel>
   </component>
 </project>
