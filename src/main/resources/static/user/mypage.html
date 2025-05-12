@@ -3,103 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <title>마이페이지</title>
-    <script>
-        // ✅ 현재 로그인한 유저 정보 가져오기
-        // const userId = localStorage.getItem('userId');
-        // fetch(`/user-game/my-participations?userId=${userId}`)
-        function loadCurrentUserAndMatches() {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                alert("로그인이 필요합니다!");
-                return;
-            }
-
-            // 🟢 1단계: /auth/user/me 호출해서 userId 가져오기
-            fetch('/auth/user/me', {
-                headers: {
-                    'Authorization': 'Bearer ' + token
-                }
-            })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('유저 정보 가져오기 실패');
-                    }
-                    return response.json();
-                })
-                .then(userData => {
-                    const userId = userData.userId;  // ✅ 이제 userId를 여기서 가져옴
-                    document.getElementById('nickname').innerText = userData.nickname;
-
-                    // 🟢 2단계: 가져온 userId로 매칭 목록 조회
-                    loadMyParticipations(userId);
-                })
-                .catch(error => {
-                    console.error(error);
-                    alert("유저 정보 로딩 실패");
-                });
-        }
-
-        // ✅ 내 참여 매칭 목록 조회
-        function loadMyParticipations(userId) {
-            const status = document.getElementById('statusSelect').value;
-            const before = document.getElementById('beforeDate').value;
-            const after = document.getElementById('afterDate').value;
-
-            let url = `/user-game/my-participations?userId=${userId}`;
-
-            if (status) url += `&status=${status}`;
-            if (before) url += `&before=${before}:00`; // datetime-local 은 초가 빠지므로 보정
-            if (after) url += `&after=${after}:00`;
-
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    const listEl = document.getElementById('participationList');
-                    listEl.innerHTML = '';  // 초기화
-                    data.forEach(match => {
-                        const li = document.createElement('li');
-                        li.textContent = `매칭 ID: ${match.id} | 장소: ${match.location} | 날짜: ${match.time}`;
-
-                        const  cancelBtn = document.createElement('button');
-                        cancelBtn.textContent = '참가 취소';
-                        cancelBtn.onclick = () => cancelParticipation(userId, match.id);
-
-                        const hostCancelBtn = document.createElement('button');
-                        hostCancelBtn.textContent = '경기 취소';
-                        hostCancelBtn.onclick = () => cancelParticipation(userid, match.id);
-
-                        li.appendChild(cancelBtn);
-                        li.appendChild(hostCancelBtn);
-
-                        listEl.appendChild(li);
-                    });
-                });
-        }
-    // 참여자가 매칭 취소
-        function cancelParticipation (userId, gameId) {
-            fetch(`/user-game/${gameId}/cancel?userId=${userId}`, {
-                method: 'POST'
-            })
-            .then( response => response.text())
-                .then(msg => {
-                    alert(msg);
-                    loadMyParticipations(userId);
-                });
-        }
-
-        function deleteMatch(userId, gameId) {
-            fetch(`user-game/${gameId}?userId=${userId}`, {
-                method: 'DELETE'
-            })
-                .then (response => response.text())
-                .then (msg => {
-                    alert(msg);
-                    loadMyParticipations(userId);
-                });
-        }
-        // ✅ 페이지 로드 시 자동 실행
-        window.onload = loadCurrentUserAndMatches;
-    </script>
 </head>
 <body>
 <h2>내 정보 (마이페이지)</h2>
@@ -114,14 +17,114 @@
     <option value="CANCELLED">취소됨</option>
 </select>
 
-<!-- 날짜 필터 -->
 <input type="datetime-local" id="beforeDate">
 <input type="datetime-local" id="afterDate">
-<button onclick="loadMyParticipations(userId)">조회</button>
+<button id="filterBtn">조회</button>
 
 <ul id="participationList"></ul>
-    <!-- 여기에 자동으로 목록이 출력됨 -->
-</ul>
 
+<script>
+    let userId = null;
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+        alert("로그인이 필요합니다.");
+        window.location.href = "/user/login.html";
+    }
+
+    // 로그인한 사용자 정보 가져오기
+    function loadCurrentUserAndMatches() {
+        fetch('/auth/user/me', {
+            headers: { 'Authorization': 'Bearer ' + token }
+        })
+            .then(response => {
+                if (!response.ok) throw new Error("사용자 정보를 가져올 수 없습니다.");
+                return response.json();
+            })
+            .then(userData => {
+                userId = userData.userId;
+                document.getElementById('nickname').innerText = userData.nickname;
+                loadMyParticipations();
+            })
+            .catch(err => {
+                console.error(err);
+                alert("로그인 정보를 불러오지 못했습니다.");
+            });
+    }
+
+    // 내가 참가한 매칭 목록 조회
+    function loadMyParticipations() {
+        const status = document.getElementById('statusSelect').value;
+        const before = document.getElementById('beforeDate').value;
+        const after = document.getElementById('afterDate').value;
+
+        let url = `/api/user-game/my-participations?userId=${userId}`;
+        if (status) url += `&status=${status}`;
+        if (before) url += `&before=${before}:00`;
+        if (after) url += `&after=${after}:00`;
+
+        fetch(url, {
+            headers: { 'Authorization': 'Bearer ' + token }
+        })
+            .then(response => {
+                if (!response.ok) return response.text().then(text => { throw new Error(text); });
+                return response.json();
+            })
+            .then(data => {
+                const listEl = document.getElementById('participationList');
+                listEl.innerHTML = '';
+                data.forEach(match => {
+                    const li = document.createElement('li');
+                    li.textContent = `매칭 ID: ${match.id} | 장소: ${match.location} | 날짜: ${match.time}`;
+
+                    const cancelBtn = document.createElement('button');
+                    cancelBtn.textContent = '참가 취소';
+                    cancelBtn.onclick = () => cancelParticipation(match.id);
+
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.textContent = '경기 취소(주최자용)';
+                    deleteBtn.onclick = () => deleteMatch(match.id);
+
+                    li.appendChild(cancelBtn);
+                    li.appendChild(deleteBtn);
+                    listEl.appendChild(li);
+                });
+            })
+            .catch(err => {
+                alert("❌ 매칭 목록 조회 실패\n" + err.message);
+                console.error(err);
+            });
+    }
+
+    function cancelParticipation(gameId) {
+        fetch(`/api/user-game/${gameId}/cancel?userId=${userId}`, {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + token }
+        })
+            .then(res => res.text())
+            .then(msg => {
+                alert(msg);
+                loadMyParticipations();
+            });
+    }
+
+    function deleteMatch(gameId) {
+        fetch(`/api/user-game/${gameId}?userId=${userId}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': 'Bearer ' + token }
+        })
+            .then(res => res.text())
+            .then(msg => {
+                alert(msg);
+                loadMyParticipations();
+            });
+    }
+
+    // 필터 버튼 이벤트
+    document.getElementById('filterBtn').onclick = loadMyParticipations;
+
+    // 초기 실행
+    window.onload = loadCurrentUserAndMatches;
+</script>
 </body>
 </html>

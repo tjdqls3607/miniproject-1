@@ -93,15 +93,15 @@ public class SecurityConfig {
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-            CorsConfiguration configuration = new CorsConfiguration();
-            configuration.addAllowedOriginPattern("*");  // 모든 origin 허용 (로컬 개발용)
-            configuration.addAllowedMethod("*");         // GET, POST 등 모든 메서드 허용
-            configuration.addAllowedHeader("*");         // 모든 헤더 허용 (Authorization 헤더 포함)
-            configuration.setAllowCredentials(true);     // 쿠키, 인증 헤더 허용
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.addAllowedOriginPattern("*");  // 모든 origin 허용 (로컬 개발용)
+        configuration.addAllowedMethod("*");         // GET, POST 등 모든 메서드 허용
+        configuration.addAllowedHeader("*");         // 모든 헤더 허용 (Authorization 헤더 포함)
+        configuration.setAllowCredentials(true);     // 쿠키, 인증 헤더 허용
 
-            UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-            source.registerCorsConfiguration("/**", configuration);
-            return source;
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 
 }

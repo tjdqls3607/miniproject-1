@@ -6,6 +6,8 @@ import com.mycom.myapp.common.entity.UserGame;
 import com.mycom.myapp.common.enums.MatchStatus;
 import com.mycom.myapp.domain.game.GameRepository;
 import com.mycom.myapp.domain.user.UserRepository;
+import com.mycom.myapp.domain.userGame.UserGameDto;
+import com.mycom.myapp.domain.userGame.UserGameRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,10 +33,8 @@ public class UserGameService {
             throw new RuntimeException("삭제 권한이 없습니다.");
         }
 
-        // 소프트 삭제
-        game.softDelete();
+        game.softDelete(); // 소프트 삭제
 
-        // 이 매칭에 참여한 유저들의 상태도 비활성화
         List<UserGame> participants = userGameRepository.findByGame(game);
         for (UserGame ug : participants) {
             ug.setMatchStatus(MatchStatus.CANCELLED);
@@ -44,49 +44,46 @@ public class UserGameService {
     // ✅ 참가자가 매칭 취소
     @Transactional
     public void cancelParticipation(Long gameId, Long userId) {
+        System.out.println("▶ [참가 취소 요청] userId=" + userId + ", gameId=" + gameId);
+
         Game game = gameRepository.findById(gameId)
-                .orElseThrow(() -> new RuntimeException("게임이 존재하지 않습니다."));
+                .orElseThrow(() -> new RuntimeException("❌ 게임이 존재하지 않습니다. gameId=" + gameId));
+
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("유저가 존재하지 않습니다."));
+                .orElseThrow(() -> new RuntimeException("❌ 유저가 존재하지 않습니다. userId=" + userId));
 
         UserGame userGame = userGameRepository.findByUserAndGame(user, game)
-                .orElseThrow(() -> new RuntimeException("참여 내역이 없습니다."));
+                .orElseThrow(() -> new RuntimeException("❌ 해당 유저는 이 매칭에 참가하지 않았습니다."));
 
         userGame.setMatchStatus(MatchStatus.CANCELLED);
+        System.out.println("✅ [참가 취소 완료] userGameId=" + userGame.getId());
     }
 
-    // ✅ 내가 참가한 매칭 목록 조회 (DTO로 변환)
+    // ✅ 내가 참가한 매칭 목록 조회 (DTO로 직접 조회)
     public List<UserGameDto> getMyParticipations(Long userId, MatchStatus status, LocalDateTime after, LocalDateTime before) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("유저가 존재하지 않습니다."));
 
-        List<UserGame> participations = userGameRepository.findByUser(user);
-        if (status != null) {
-            participations = participations.stream()
-                    .filter(ug -> ug.getMatchStatus() == status)
-                    .toList();
-        }
+        List<UserGameDto> dtos = (status != null)
+                ? userGameRepository.findDtoByUserAndMatchStatus(user, status)
+                : userGameRepository.findDtoByUser(user);
+
+        // 날짜 필터
         if (after != null) {
-            participations = participations.stream()
-                    .filter(ug -> ug.getGame().getTime().isAfter(after))
+            dtos = dtos.stream()
+                    .filter(dto -> dto.getTime() != null && dto.getTime().isAfter(after))
                     .toList();
         }
         if (before != null) {
-            participations = participations.stream()
-                    .filter(ug -> ug.getGame().getTime().isBefore(before))
+            dtos = dtos.stream()
+                    .filter(dto -> dto.getTime() != null && dto.getTime().isBefore(before))
                     .toList();
         }
-//                = userGameRepository.findByUserAndMatchStatus(user, MatchStatus.COMPLETED);
 
-        return participations.stream()
-                .map(ug -> {
-                    Game g = ug.getGame();
-                    return new UserGameDto(g.getId(), g.getLocation(), g.getTime(), g.getAgainstPeople());
-                })
-                .toList();
+        return dtos;
     }
 
-    // ✅ 내가 주최한 매칭 목록 조회 (DTO로 변환)
+    // ✅ 내가 주최한 매칭 목록 조회 (그대로 사용 가능)
     public List<UserGameDto> getMyCreatedMatches(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("유저가 존재하지 않습니다."));

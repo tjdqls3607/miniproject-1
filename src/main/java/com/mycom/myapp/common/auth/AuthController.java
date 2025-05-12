@@ -17,6 +17,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
@@ -49,10 +51,19 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<ResponseDTO<LoginResponse>> login(@RequestBody LoginRequest request) {
+        System.out.println("로그인 요청 들어옴: \" + request.getEmail() + \" / \" + request.getPassword()");
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
         );
         String token = jwtTokenProvider.createToken(authentication);
         return ResponseEntity.ok(ResponseDTO.success(ResponseCode.SUCCESS, LoginResponse.builder().token(token).build()));
+    }
+    @GetMapping("/user/me")
+    public ResponseEntity<?> getCurrentUser(Authentication authentication) {
+        String username = authentication.getName();
+        User user = userService.findByEmail(username).orElseThrow(() -> new RuntimeException("User not found"));
+        return ResponseEntity.ok(Map.of(
+                "userId", user.getId(),
+                "nickname", user.getNickname()));
     }
 }
