@@ -37,7 +37,13 @@ public class SecurityConfig {
                 .sessionManagement((sessionConfig) -> sessionConfig.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests((authorizeRequests) -> {
                     authorizeRequests
-                            .requestMatchers("/auth/**").permitAll()
+                            .requestMatchers("/auth/**",
+                                    "/css/**",
+                                    "/js/**",
+                                    "/images/**",
+                                    "/favicon.ico",
+                                    "/**/*.html"
+                            ).permitAll()
                             .anyRequest().authenticated();
                 })
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
