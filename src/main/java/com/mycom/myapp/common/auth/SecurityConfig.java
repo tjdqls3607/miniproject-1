@@ -37,7 +37,7 @@ public class SecurityConfig {
                 .sessionManagement((sessionConfig) -> sessionConfig.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests((authorizeRequests) -> {
                     authorizeRequests.requestMatchers("/",
-                            		"/auth/**",
+                            		"/api/auth/**",
                                     "/error",
                                     "/favicon.ico",
                             		"/assets/**",
@@ -47,7 +47,6 @@ public class SecurityConfig {
                             		"/game/matching.html"
                             		)
                             .permitAll()
-
                             .anyRequest().authenticated();
                 })
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

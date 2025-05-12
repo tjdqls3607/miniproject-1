@@ -20,8 +20,8 @@ import lombok.extern.slf4j.Slf4j;
 public class GameService {
     private final GameRepository gameRepository;
     
-    public void save(Game game) {
-        gameRepository.save(game);
+    public Game save(Game game) {
+        return gameRepository.save(game);
     }
     
     public List<GameDto> listGame() {
