@@ -56,7 +56,6 @@ public class UserGameController {
         return userGameService.getMyCreatedMatches(userId);
     }
 
-	private final UserGameService userGameService;
 
 	@PostMapping("/{gameId}/participate")
 	public ResponseEntity<?> participateGame(@PathVariable("gameId") Long gameId){

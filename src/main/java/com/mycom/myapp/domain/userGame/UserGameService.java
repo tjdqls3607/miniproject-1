@@ -106,8 +106,6 @@ public class UserGameService {
                 .map(g -> new UserGameDto(g.getId(), g.getLocation(), g.getTime(), g.getAgainstPeople()))
                 .toList();
     }
-    private final UserRepository userRepository;
-    private final GameRepository gameRepository;
     private final JwtTokenProvider jwtTokenProvider;
 
     public void participateGame(Long gameId) {

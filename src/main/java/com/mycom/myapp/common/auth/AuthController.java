@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
@@ -57,9 +57,14 @@ public class AuthController {
         String token = jwtTokenProvider.createToken(authentication);
         return ResponseEntity.ok(ResponseDTO.success(ResponseCode.SUCCESS, LoginResponse.builder().token(token).build()));
     }
-    @GetMapping("/user/me")
+
+
+    @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser(Authentication authentication) {
         String username = authentication.getName();
+         if (authentication == null || !authentication.isAuthenticated()) {
+             return ResponseEntity.status(401).body("인증이 필요합니다");
+         }
         User user = userService.findByEmail(username).orElseThrow(() -> new RuntimeException("User not found"));
         return ResponseEntity.ok(Map.of(
                 "userId", user.getId(),
