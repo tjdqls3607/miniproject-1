@@ -11,6 +11,14 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.mycom.myapp.common.enums.ResponseCode;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/user-game")
@@ -47,4 +55,13 @@ public class UserGameController {
     public List<UserGameDto> getMyCreatedMatches(@RequestParam Long userId) {
         return userGameService.getMyCreatedMatches(userId);
     }
+
+	private final UserGameService userGameService;
+
+	@PostMapping("/{gameId}/participate")
+	public ResponseEntity<?> participateGame(@PathVariable("gameId") Long gameId){
+		log.error("gameid=" + gameId);
+		userGameService.participateGame(gameId);
+		return ResponseEntity.ok(ResponseCode.SUCCESS);
+	}
 }

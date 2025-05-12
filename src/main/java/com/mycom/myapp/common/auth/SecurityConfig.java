@@ -49,7 +49,13 @@ public class SecurityConfig {
                                     "/user/signup.html",
                                     "/user/mypage.html",
                                     "/user-game/my-created",
-                                    "/user-game/my-participations").permitAll()
+                                    "/user-game/my-participations",
+                                    "/user/**",
+                                    "/api/auth/**",
+                                    "/assets/**",
+                                    "/api/game/**",
+                                    "/game/matching.html"
+                            ).permitAll()
                             .anyRequest().authenticated();
                 })
                 .authenticationProvider(daoAuthenticationProvider())

@@ -11,6 +11,8 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
+import com.mycom.myapp.common.entity.UserGame;
+
 public interface UserGameRepository extends JpaRepository<UserGame, Long> {
     List<UserGame> findByGame(Game game);
     List<UserGame> findByUserAndMatchStatus(User user, MatchStatus matchStatus);
@@ -34,4 +36,6 @@ JOIN ug.game g
 WHERE ug.user = :user AND ug.matchStatus = :status
 """)
     List<UserGameDto> findDtoByUserAndMatchStatus(@Param("user") User user, @Param("status") MatchStatus status);
+
+	boolean existsByUserIdAndGameId(Long userId, Long gameId);
 }
