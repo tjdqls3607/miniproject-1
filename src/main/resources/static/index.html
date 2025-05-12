@@ -88,6 +88,7 @@
             let participantMin = el.participantMin;
             let participantMax = el.participantMax;
             let time = el.time;
+            let timeStr = makeDateStr(time);
 
             // 게임 정보에 맞는 카드 구조 생성
             listHTML += `
@@ -97,7 +98,7 @@
                             <h6 class="card-subtitle mb-2 text-muted">${againstPeople}</h6>
                             <h3 class="card-title"><strong>${location}</strong></h3>
                             <p class="card-text">참가 인원: ${participantMin} ~ ${participantMax}명</p>
-                            <p class="card-text">일시: ${time}</p>
+                            <p class="card-text">일시: ${timeStr}</p>
                         </div>
                     </div>
                 </div>`;

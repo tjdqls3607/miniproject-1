@@ -30,38 +30,48 @@
 	  	</div>
 	</nav>
 	
-    <div class="container mt-5">
-        <h1 class="text-center">Game Detail</h1>
-        <div id="game-detail" class="card shadow-lg mt-4">
-            <div class="card-body">
-                <h3 class="card-title text-primary" id="game-title"></h3>
-                <p class="card-text">
-                    <strong>Location:</strong> <span id="game-location"></span>
-                </p>
-                <p class="card-text">
-                    <strong>Time:</strong> <span id="game-time"></span>
-                </p>
-                <p class="card-text">
-                    <strong>Deadline:</strong> <span id="game-deadline"></span>
-                </p>
-                <p class="card-text">
-                    <strong>Participants:</strong> 
+<div class="container mt-5">
+    <h1 class="text-center">경기 정보</h1>
+    <div class="row mt-4">
+        <!-- Left Section: Game Details -->
+        <div class="col-md-8">
+            <h5 class="card-title text-primary" id="game-title"></h5>
+            <div id="game-detail">
+            	<h1 class="card-text m-3"><strong>경기 장소: </strong><span id="game-location"></span></h1>
+            	
+            	<h3 class="card-text m-3 mt-4"><strong>⏰경기 시간: </strong> <span id="game-time"></span></h3>
+                
+            	<h3 class="card-text m-3"><strong>⌛신청 마감 시간: </strong> <span id="game-deadline"></span></h3>
+                <h5 class="card-text m-3 mt-4">
+                    <strong>👥참여 인원: </strong> 
                     <span id="game-participants-min"></span> ~ 
                     <span id="game-participants-max"></span>
-                </p>
-                <p class="card-text">
-                    <strong>Against People:</strong> <span id="game-against-people"></span>
-                </p>
-                <p class="card-text">
-                    <strong>Game Info:</strong> <span id="game-info"></span>
-                </p>
-                <p class="card-text">
-                    <strong>Game Notification:</strong> <span id="game-noti"></span>
-                </p>
+                </h5>
+                <h5 class="card-text m-3">
+                    <strong>🆚경기 인원: </strong> <span id="game-against-people"></span>
+                </h5>
+                <h5 class="card-text m-3">
+                    <strong>ℹ️구장 정보: </strong> <span id="game-noti"></span>
+                </h5>
+            </div>
+        </div>
+
+        <!-- Right Section: Game Info Card and Button -->
+        <div class="col-md-4">
+            <div class="card shadow-lg">
+                <div class="card-body">
+                    <p class="card-text">
+                        <strong>Game Info:</strong>
+                        <span id="game-info"></span>
+                    </p>
+                </div>
+            </div>
+            <div class="d-flex justify-content-end mt-3">
+                <button id="ParticipateBtn" class="btn btn-primary btn-lg">신청하기</button>
             </div>
         </div>
     </div>
-    <button id="ParticipateBtn">신청하기</button>
+</div>
 
 <script src="/assets/js/common.js"></script>
 <script >
@@ -86,10 +96,16 @@ async function GameDetail() {
         if (!response.ok) throw new Error('Failed to fetch game details.');
 
         let game = await response.json();
+        
+        let time = game.time;
+        let timeStr = makeDateStr(time);
+        let deadline = game.deadline;
+        let deadlineStr = makeDateStr(deadline);
+        
         document.getElementById('game-title').textContent = `Game #${gameId}`;
         document.getElementById('game-location').textContent = game.location;
-        document.getElementById('game-time').textContent = game.time;
-        document.getElementById('game-deadline').textContent = game.deadline;
+        document.getElementById('game-time').textContent = timeStr;
+        document.getElementById('game-deadline').textContent = deadlineStr;
         document.getElementById('game-participants-min').textContent = game.participantMin;
         document.getElementById('game-participants-max').textContent = game.participantMax;
         document.getElementById('game-against-people').textContent = game.againstPeople;

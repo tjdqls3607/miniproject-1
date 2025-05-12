@@ -1,5 +1,6 @@
 package com.mycom.myapp.domain.game;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -29,18 +30,21 @@ public class GameService {
         
     	List<GameDto> gamesDtoList = new ArrayList<>();
     	games.forEach( game -> {
-    		GameDto gameDto = GameDto.builder()
-    				.id(game.getId())
-    				.location(game.getLocation())
-    				.time(game.getTime())
-    				.deadline(game.getDeadline())
-    				.participantMin(game.getParticipantMin())
-    				.participantMax(game.getParticipantMax())
-    				.againstPeople(game.getAgainstPeople())
-    				.gameInfo(game.getGameInfo())
-    				.gameNoti(game.getGameNoti())
-    				.build();
-    		gamesDtoList.add(gameDto);
+    		
+    		if(game.getDeadline().isAfter(LocalDateTime.now())) { // 마감시간 지나지 않은 것만
+        		GameDto gameDto = GameDto.builder()
+        				.id(game.getId())
+        				.location(game.getLocation())
+        				.time(game.getTime())
+        				.deadline(game.getDeadline())
+        				.participantMin(game.getParticipantMin())
+        				.participantMax(game.getParticipantMax())
+        				.againstPeople(game.getAgainstPeople())
+        				.gameInfo(game.getGameInfo())
+        				.gameNoti(game.getGameNoti())
+        				.build();
+        		gamesDtoList.add(gameDto);
+    		}
     		
     	});
     	return gamesDtoList;

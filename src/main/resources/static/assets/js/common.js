@@ -15,3 +15,9 @@ async function checkLogin(){
 
 	document.querySelector("#loginCheck").style.display='block';	
 }
+
+function makeDateStr(dateTime){
+	const date = new Date(dateTime);
+    return ((date.getMonth() + 1) + "월") + (date.getDate() + "일 ") 
+	+ (date.getHours() + "시") + (date.getMinutes().toString().padStart(2,"0") + "분");
+}
