@@ -41,19 +41,62 @@
 
         // ✅ 내 참여 매칭 목록 조회
         function loadMyParticipations(userId) {
-            fetch(`/user-game/my-participations?userId=${userId}`)
+            const status = document.getElementById('statusSelect').value;
+            const before = document.getElementById('beforeDate').value;
+            const after = document.getElementById('afterDate').value;
+
+            let url = `/user-game/my-participations?userId=${userId}`;
+
+            if (status) url += `&status=${status}`;
+            if (before) url += `&before=${before}:00`; // datetime-local 은 초가 빠지므로 보정
+            if (after) url += `&after=${after}:00`;
+
+            fetch(url)
                 .then(response => response.json())
                 .then(data => {
                     const listEl = document.getElementById('participationList');
                     listEl.innerHTML = '';  // 초기화
                     data.forEach(match => {
                         const li = document.createElement('li');
-                        li.textContent = `매칭 ID: ${match.id} | 장소: ${match.location} | 날짜: ${match.time}` ;
+                        li.textContent = `매칭 ID: ${match.id} | 장소: ${match.location} | 날짜: ${match.time}`;
+
+                        const  cancelBtn = document.createElement('button');
+                        cancelBtn.textContent = '참가 취소';
+                        cancelBtn.onclick = () => cancelParticipation(userId, match.id);
+
+                        const hostCancelBtn = document.createElement('button');
+                        hostCancelBtn.textContent = '경기 취소';
+                        hostCancelBtn.onclick = () => cancelParticipation(userid, match.id);
+
+                        li.appendChild(cancelBtn);
+                        li.appendChild(hostCancelBtn);
+
                         listEl.appendChild(li);
                     });
                 });
-        }z
+        }
+    // 참여자가 매칭 취소
+        function cancelParticipation (userId, gameId) {
+            fetch(`/user-game/${gameId}/cancel?userId=${userId}`, {
+                method: 'POST'
+            })
+            .then( response => response.text())
+                .then(msg => {
+                    alert(msg);
+                    loadMyParticipations(userId);
+                });
+        }
 
+        function deleteMatch(userId, gameId) {
+            fetch(`user-game/${gameId}?userId=${userId}`, {
+                method: 'DELETE'
+            })
+                .then (response => response.text())
+                .then (msg => {
+                    alert(msg);
+                    loadMyParticipations(userId);
+                });
+        }
         // ✅ 페이지 로드 시 자동 실행
         window.onload = loadCurrentUserAndMatches;
     </script>
@@ -65,7 +108,18 @@
 <a href="../index.html">홈 화면</a>
 
 <h3>✅ 내가 참가한 매칭 목록</h3>
-<ul id="participationList">
+<select id="statusSelect">
+    <option value="">전체</option>
+    <option value="COMPLETED">완료</option>
+    <option value="CANCELLED">취소됨</option>
+</select>
+
+<!-- 날짜 필터 -->
+<input type="datetime-local" id="beforeDate">
+<input type="datetime-local" id="afterDate">
+<button onclick="loadMyParticipations(userId)">조회</button>
+
+<ul id="participationList"></ul>
     <!-- 여기에 자동으로 목록이 출력됨 -->
 </ul>
 

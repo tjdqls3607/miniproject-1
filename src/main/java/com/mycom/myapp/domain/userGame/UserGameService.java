@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -55,11 +56,27 @@ public class UserGameService {
     }
 
     // ✅ 내가 참가한 매칭 목록 조회 (DTO로 변환)
-    public List<UserGameDto> getMyParticipations(Long userId) {
+    public List<UserGameDto> getMyParticipations(Long userId, MatchStatus status, LocalDateTime after, LocalDateTime before) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("유저가 존재하지 않습니다."));
 
-        List<UserGame> participations = userGameRepository.findByUserAndMatchStatus(user, MatchStatus.COMPLETED);
+        List<UserGame> participations = userGameRepository.findByUser(user);
+        if (status != null) {
+            participations = participations.stream()
+                    .filter(ug -> ug.getMatchStatus() == status)
+                    .toList();
+        }
+        if (after != null) {
+            participations = participations.stream()
+                    .filter(ug -> ug.getGame().getTime().isAfter(after))
+                    .toList();
+        }
+        if (before != null) {
+            participations = participations.stream()
+                    .filter(ug -> ug.getGame().getTime().isBefore(before))
+                    .toList();
+        }
+//                = userGameRepository.findByUserAndMatchStatus(user, MatchStatus.COMPLETED);
 
         return participations.stream()
                 .map(ug -> {

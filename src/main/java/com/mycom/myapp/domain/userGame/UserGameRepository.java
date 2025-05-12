@@ -13,4 +13,5 @@ public interface UserGameRepository extends JpaRepository<UserGame, Long> {
     List<UserGame> findByGame(Game game);
     List<UserGame> findByUserAndMatchStatus(User user, MatchStatus matchStatus);
     Optional<UserGame> findByUserAndGame(User user, Game game);
+    List<UserGame> findByUser(User user);
 }

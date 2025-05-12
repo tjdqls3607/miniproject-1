@@ -1,10 +1,14 @@
 package com.mycom.myapp.domain.userGame;
 
+import com.mycom.myapp.common.enums.MatchStatus;
 import com.mycom.myapp.domain.userGame.UserGameDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -31,8 +35,11 @@ public class UserGameController {
 
     // ✅ 내가 참가한 매칭 목록 조회 (DTO 리턴)
     @GetMapping("/my-participations")
-    public List<UserGameDto> getMyParticipations(@RequestParam Long userId) {
-        return userGameService.getMyParticipations(userId);
+    public List<UserGameDto> getMyParticipations(@RequestParam Long userId,
+                                                 @RequestParam(required = false) MatchStatus status,
+                                                 @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)LocalDateTime before,
+                                                 @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)LocalDateTime after) {
+        return userGameService.getMyParticipations(userId, status, before, after);
     }
 
     // ✅ 내가 주최한 매칭 목록 조회 (DTO 리턴)
