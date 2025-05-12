@@ -1,12 +1,12 @@
 package com.mycom.myapp.common.auth.dto;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.Getter;
+import lombok.*;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
-public class LoginRequest {
+public class  LoginRequest {
     private String email;
     private String password;
 }
