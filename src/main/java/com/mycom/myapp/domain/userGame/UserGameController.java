@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/user-game")
+@RequestMapping("/api/user-game")
 @Slf4j
 public class UserGameController {
 }
