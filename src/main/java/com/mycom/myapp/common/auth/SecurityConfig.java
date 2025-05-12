@@ -36,9 +36,10 @@ public class SecurityConfig {
                 .cors(AbstractHttpConfigurer::disable)
                 .sessionManagement((sessionConfig) -> sessionConfig.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests((authorizeRequests) -> {
-                    authorizeRequests
-                            .requestMatchers("/",
+                    authorizeRequests.requestMatchers("/",
                             		"/auth/**",
+                                    "/error",
+                                    "/favicon.ico",
                             		"/assets/**",
                             		"/index.html",
                             		"/games/**",
@@ -46,6 +47,7 @@ public class SecurityConfig {
                             		"/game/matching.html"
                             		)
                             .permitAll()
+
                             .anyRequest().authenticated();
                 })
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

@@ -24,3 +24,4 @@
 
 신청한 후 sql
 ![image](https://github.com/user-attachments/assets/160ff804-9844-4886-8c8f-3fa692361554)
+

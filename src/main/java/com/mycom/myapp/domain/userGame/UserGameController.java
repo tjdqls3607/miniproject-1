@@ -13,7 +13,7 @@ import com.mycom.myapp.common.enums.ResponseCode;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/user-game")
+@RequestMapping("/api/user-game")
 @Slf4j
 public class UserGameController {
 	
