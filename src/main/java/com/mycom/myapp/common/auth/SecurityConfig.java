@@ -36,17 +36,21 @@ public class SecurityConfig {
                 .cors(AbstractHttpConfigurer::disable)
                 .sessionManagement((sessionConfig) -> sessionConfig.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests((authorizeRequests) -> {
-                    authorizeRequests.requestMatchers("/",
-                            		"/api/auth/**",
+                    authorizeRequests
+                            .requestMatchers("/auth/**",
                                     "/error",
+                                    "/css/**",
+                                    "/js/**",
+                                    "/images/**",
                                     "/favicon.ico",
-                            		"/assets/**",
-                            		"/index.html",
-                            		"/games/**",
-                            		"/user/**",
-                            		"/game/matching.html"
-                            		)
-                            .permitAll()
+                                    "/",
+                                    "/index.html",
+                                    "/user/**",
+                                    "/api/auth/**",
+                                    "/assets/**",
+                                    "/api/game/**",
+                                    "/game/matching.html"
+                            ).permitAll()
                             .anyRequest().authenticated();
                 })
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

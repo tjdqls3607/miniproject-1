@@ -35,7 +35,6 @@ public class AuthController {
         if(userService.findByNickname(request.getNickname()).isPresent()) {
             throw new BadRequestException(ResponseCode.DUPLICATED_NICKNAME);
         }
-
         User user = User.builder()
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))

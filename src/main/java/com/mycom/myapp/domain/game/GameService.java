@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import com.mycom.myapp.common.entity.Game;
 import com.mycom.myapp.common.enums.ResponseCode;
 import com.mycom.myapp.common.error.exceptions.NotFoundException;
+import com.mycom.myapp.domain.game.dto.GameDto;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

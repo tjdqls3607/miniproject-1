@@ -16,6 +16,7 @@ import com.mycom.myapp.common.entity.Game;
 import com.mycom.myapp.common.entity.User;
 import com.mycom.myapp.common.enums.ResponseCode;
 import com.mycom.myapp.domain.game.dto.GameCreateRequest;
+import com.mycom.myapp.domain.game.dto.GameDto;
 import com.mycom.myapp.domain.user.UserService;
 
 import jakarta.validation.Valid;

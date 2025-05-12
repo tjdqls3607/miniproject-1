@@ -92,7 +92,7 @@ async function GameDetail() {
     }
 
     try {
-        let response = await fetch(`/games/detail/${gameId}`);
+        let response = await fetch(`/api/game/detail/${gameId}`);
         if (!response.ok) throw new Error('Failed to fetch game details.');
 
         let game = await response.json();
@@ -119,7 +119,7 @@ async function GameDetail() {
 async function participateGame() {
     const params = new URLSearchParams(window.location.search);
     const gameId = params.get('id');
-    const url = `/user-game/${gameId}/participate`;
+    const url = `/api/user-game/${gameId}/participate`;
     const token = localStorage.getItem('token');
     console.log(url);
     try {

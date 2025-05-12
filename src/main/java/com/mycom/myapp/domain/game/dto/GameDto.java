@@ -1,4 +1,4 @@
-package com.mycom.myapp.domain.game;
+package com.mycom.myapp.domain.game.dto;
 
 import java.time.LocalDateTime;
 
