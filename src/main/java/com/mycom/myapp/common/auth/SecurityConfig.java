@@ -45,7 +45,8 @@ public class SecurityConfig {
                                     "/favicon.ico",
                                     "/",
                                     "/index.html",
-                                    "/user/**"
+                                    "/user/**",
+                                    "/api/auth/**"
                             ).permitAll()
                             .anyRequest().authenticated();
                 })
