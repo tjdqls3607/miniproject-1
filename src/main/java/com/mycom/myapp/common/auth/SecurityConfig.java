@@ -38,11 +38,14 @@ public class SecurityConfig {
                 .authorizeHttpRequests((authorizeRequests) -> {
                     authorizeRequests
                             .requestMatchers("/auth/**",
+                                    "/error",
                                     "/css/**",
                                     "/js/**",
                                     "/images/**",
                                     "/favicon.ico",
-                                    "/**/*.html"
+                                    "/",
+                                    "/index.html",
+                                    "/user/**"
                             ).permitAll()
                             .anyRequest().authenticated();
                 })
