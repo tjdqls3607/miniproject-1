@@ -17,6 +17,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -35,7 +37,6 @@ public class AuthController {
         if(userService.findByNickname(request.getNickname()).isPresent()) {
             throw new BadRequestException(ResponseCode.DUPLICATED_NICKNAME);
         }
-
         User user = User.builder()
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
@@ -49,10 +50,24 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<ResponseDTO<LoginResponse>> login(@RequestBody LoginRequest request) {
+        System.out.println("로그인 요청 들어옴: \" + request.getEmail() + \" / \" + request.getPassword()");
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
         );
         String token = jwtTokenProvider.createToken(authentication);
         return ResponseEntity.ok(ResponseDTO.success(ResponseCode.SUCCESS, LoginResponse.builder().token(token).build()));
+    }
+
+
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser(Authentication authentication) {
+        String username = authentication.getName();
+         if (authentication == null || !authentication.isAuthenticated()) {
+             return ResponseEntity.status(401).body("인증이 필요합니다");
+         }
+        User user = userService.findByEmail(username).orElseThrow(() -> new RuntimeException("User not found"));
+        return ResponseEntity.ok(Map.of(
+                "userId", user.getId(),
+                "nickname", user.getNickname()));
     }
 }
