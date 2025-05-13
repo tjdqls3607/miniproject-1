@@ -6,6 +6,7 @@ import com.mycom.myapp.domain.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -38,8 +39,7 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
-//                .cors(AbstractHttpConfigurer::disable)
-                .cors().and()
+                .cors(cors ->cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement((sessionConfig) -> sessionConfig.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests((authorizeRequests) -> {
                     authorizeRequests
@@ -50,11 +50,14 @@ public class SecurityConfig {
 //                                    "/user/mypage.html",
 //                                    "/user-game/my-created",
 //                                    "/user-game/my-participations",
+                                    "/game/gameupload.html",
                                     "/user/**",
                                     "/api/auth/**",
                                     "/assets/**",
-                                    "/api/game/**",
                                     "/game/matching.html"
+                            ).permitAll()
+                            .requestMatchers(
+                                    HttpMethod.GET,"/api/game/**"
                             ).permitAll()
                             .anyRequest().authenticated();
                 })
