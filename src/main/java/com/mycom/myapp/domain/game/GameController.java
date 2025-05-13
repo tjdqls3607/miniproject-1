@@ -2,6 +2,7 @@ package com.mycom.myapp.domain.game;
 
 import java.util.List;
 
+import com.mycom.myapp.domain.userGame.UserGameService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,6 +32,8 @@ public class GameController {
     private final GameService gameService;
     private final UserService userService;
     private final JwtTokenProvider jwtTokenProvider;
+    private final UserGameService userGameService;
+
     @PostMapping
     public ResponseEntity<ResponseDTO<Game>> createGame(@RequestBody @Valid GameCreateRequest request) {
         User user = jwtTokenProvider.getUserFromSecurityContext();
@@ -47,6 +50,8 @@ public class GameController {
                 .build();
 
         game = gameService.save(game);
+
+        userGameService.participateGame(game.getId());
 
         return ResponseEntity.status(201).body(ResponseDTO.success(ResponseCode.CREATED, Game.builder()
                         .id(game.getId())
