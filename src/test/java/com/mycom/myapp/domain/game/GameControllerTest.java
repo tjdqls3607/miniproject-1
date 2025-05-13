@@ -18,7 +18,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mycom.myapp.common.ResponseDTO;
 import com.mycom.myapp.common.auth.JwtTokenProvider;
 import com.mycom.myapp.common.entity.Game;
@@ -29,6 +28,7 @@ import com.mycom.myapp.common.error.exceptions.UnauthorizedException;
 import com.mycom.myapp.domain.game.dto.GameCreateRequest;
 import com.mycom.myapp.domain.game.dto.GameDto;
 import com.mycom.myapp.domain.user.UserService;
+import com.mycom.myapp.domain.userGame.UserGameService;
 @ExtendWith(MockitoExtension.class)
 public class GameControllerTest {
     @InjectMocks
@@ -43,7 +43,8 @@ public class GameControllerTest {
     @Mock
     private UserService userService;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    @Mock
+    private UserGameService userGameService;
 
     @Test
     @DisplayName("게임 생성 성공")
