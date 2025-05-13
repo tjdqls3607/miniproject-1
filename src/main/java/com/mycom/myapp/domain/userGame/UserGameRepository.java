@@ -21,7 +21,7 @@ public interface UserGameRepository extends JpaRepository<UserGame, Long> {
 
     @Query("""
 SELECT new com.mycom.myapp.domain.userGame.UserGameDto(
-    g.id, g.location, g.time, g.againstPeople)
+    g.id, g.location, g.time, g.againstPeople, g.host.id)
 FROM UserGame ug
 JOIN ug.game g
 WHERE ug.user = :user
@@ -30,7 +30,7 @@ WHERE ug.user = :user
 
     @Query("""
 SELECT new com.mycom.myapp.domain.userGame.UserGameDto(
-    g.id, g.location, g.time, g.againstPeople)
+    g.id, g.location, g.time, g.againstPeople, g.host.id)
 FROM UserGame ug
 JOIN ug.game g
 WHERE ug.user = :user AND ug.matchStatus = :status

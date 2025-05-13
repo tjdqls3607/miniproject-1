@@ -35,9 +35,12 @@ public class UserGameService {
     private final UserRepository userRepository;
     private final UserGameRepository userGameRepository;
 
-    // ✅ 주최자가 매칭 삭제
+    // 주최자가 매칭 삭제
     @Transactional
-    public void deleteMatch(Long gameId, Long userId) {
+    public void deleteMatch(Long gameId) {
+        User currentUser = jwtTokenProvider.getUserFromSecurityContext();
+        Long userId = currentUser.getId();
+
         Game game = gameRepository.findById(gameId)
                 .orElseThrow(() -> new RuntimeException("게임이 존재하지 않습니다."));
 
@@ -45,24 +48,33 @@ public class UserGameService {
             throw new RuntimeException("삭제 권한이 없습니다.");
         }
 
-        game.softDelete(); // 소프트 삭제
-
         List<UserGame> participants = userGameRepository.findByGame(game);
-        for (UserGame ug : participants) {
-            ug.setMatchStatus(MatchStatus.CANCELLED);
-        }
+        userGameRepository.deleteAll(participants);
+
+        gameRepository.delete(game);
+
+//        List<UserGame> participants = userGameRepository.findByGame(game);
+//        for (UserGame ug : participants) {
+//            ug.setMatchStatus(MatchStatus.CANCELLED);
+//        }
     }
 
-    // ✅ 참가자가 매칭 취소
+    // 참가자가 매칭 취소
     @Transactional
-    public void cancelParticipation(Long gameId, Long userId) {
+    public void cancelParticipation(Long gameId) {
+        User user = jwtTokenProvider.getUserFromSecurityContext();
+        Long userId = user.getId();
         System.out.println("▶ [참가 취소 요청] userId=" + userId + ", gameId=" + gameId);
 
         Game game = gameRepository.findById(gameId)
                 .orElseThrow(() -> new RuntimeException("❌ 게임이 존재하지 않습니다. gameId=" + gameId));
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("❌ 유저가 존재하지 않습니다. userId=" + userId));
+        if (game.getHost().getId().equals(user.getId())) {
+            throw new RuntimeException("주최자는 참가 취소가 불가능 합니다.");
+        }
+
+//        User user = userRepository.findById(userId)
+//                .orElseThrow(() -> new RuntimeException("❌ 유저가 존재하지 않습니다. userId=" + userId));
 
         UserGame userGame = userGameRepository.findByUserAndGame(user, game)
                 .orElseThrow(() -> new RuntimeException("❌ 해당 유저는 이 매칭에 참가하지 않았습니다."));
@@ -71,7 +83,7 @@ public class UserGameService {
         System.out.println("✅ [참가 취소 완료] userGameId=" + userGame.getId());
     }
 
-    // ✅ 내가 참가한 매칭 목록 조회 (DTO로 직접 조회)
+    // 내가 참가한 매칭 목록 조회 (DTO로 직접 조회)
     public List<UserGameDto> getMyParticipations(Long userId, MatchStatus status, LocalDateTime after, LocalDateTime before) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("유저가 존재하지 않습니다."));
@@ -95,7 +107,7 @@ public class UserGameService {
         return dtos;
     }
 
-    // ✅ 내가 주최한 매칭 목록 조회 (그대로 사용 가능)
+    // 내가 주최한 매칭 목록 조회
     public List<UserGameDto> getMyCreatedMatches(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("유저가 존재하지 않습니다."));
@@ -103,7 +115,7 @@ public class UserGameService {
         List<Game> games = gameRepository.findByHost(user);
 
         return games.stream()
-                .map(g -> new UserGameDto(g.getId(), g.getLocation(), g.getTime(), g.getAgainstPeople()))
+                .map(g -> new UserGameDto(g.getId(), g.getLocation(), g.getTime(), g.getAgainstPeople(), g.getHost().getId()))
                 .toList();
     }
     private final JwtTokenProvider jwtTokenProvider;

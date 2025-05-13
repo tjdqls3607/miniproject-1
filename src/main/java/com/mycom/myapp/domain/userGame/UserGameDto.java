@@ -12,4 +12,5 @@ public class UserGameDto {
     private String location;
     private LocalDateTime time;
     private String againstPeople;
+    private Long hostId;
 }
