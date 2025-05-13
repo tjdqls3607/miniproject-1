@@ -32,7 +32,7 @@ public class UserGameService {
     	Game game = gameRepository.findById(gameId)
     			.orElseThrow(() -> new NotFoundException(ResponseCode.NOT_FOUND_GAME));
     	
-    	if(userGameRepository.existsByUserIdAndGameId(11L, gameId)) {
+    	if(userGameRepository.existsByUserIdAndGameId(userId, gameId)) {
     		throw new IllegalStateException("이미 신청한 게임입니다.");
     	}
     	
