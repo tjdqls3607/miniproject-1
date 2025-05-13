@@ -31,6 +31,28 @@
 <div id="resultMsg" class="mt-3"></div>
 
 <script>
+    function signup() {
+        const nickname = document.getElementById('nickname').value;
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        fetch('/auth/signup', {
+            method: 'POST',
+            headers: {'Content-Type' : 'application/json'},
+            body : JSON.stringify({nickname, email, password})
+        })
+            .then(response => {
+            if (response.ok) {
+                alert('회원가입 성공');
+                window.location.href='login.html';
+            }else {
+                alert('회원가입 실패');
+            }
+        });
+    }
+
+</script>
+<script>
     document.getElementById("signupForm").addEventListener("submit", async function(e) {
         e.preventDefault();
 
@@ -52,7 +74,7 @@
 
             const result = await res.json();
 
-            if (res.ok && result.code === "C001") {
+            if (res.ok && result.code === "POST_OR_PATCH_SUCCESS") {
                 alert("회원가입 성공! 로그인 페이지로 이동합니다.");
                 window.location.href = "/user/login.html";
             } else {

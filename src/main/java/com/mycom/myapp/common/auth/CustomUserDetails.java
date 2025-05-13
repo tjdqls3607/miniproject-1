@@ -19,6 +19,7 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public String getPassword() {
+        System.out.println("로그 UserDetail 비밀번호 반환 : " +user.getPassword());
         return user.getPassword();
     }
 

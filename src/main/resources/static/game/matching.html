@@ -17,19 +17,19 @@
 	   		<a class="navbar-brand mx-auto" href="/index.html">
 	        	<img src="/assets/img/tikitaka-logo.png" alt="Tikitaka" height="100px">
 	    	</a>
-	    	
+
 	    	<!-- 로그인이 안되어있으면 로그인이 뜨고 되어있으며 프로필이미지가 뜨게 -->
 	    	<div id="loginCheck">
 		    	<a href="/user/login.html" class="btn btn-primary m-1" id="btnLogin">로그인</a>
 		    	<a href="/user/signup.html" class="btn btn-primary" id="btnSignup">회원가입</a>
-		    	
+
 		    	<a class="navbar-brand" href="/user/mypage.html">
 		    		<img id="userProfileImage" src="/assets/img/noProfile.png" alt="User" style="width:50px; height:50px; border-radius:50%;">
 		    	</a>
 	    	</div>
 	  	</div>
 	</nav>
-	
+
 <div class="container mt-5">
     <h1 class="text-center">경기 정보</h1>
     <div class="row mt-4">
@@ -38,13 +38,13 @@
             <h5 class="card-title text-primary" id="game-title"></h5>
             <div id="game-detail">
             	<h1 class="card-text m-3"><strong>경기 장소: </strong><span id="game-location"></span></h1>
-            	
+
             	<h3 class="card-text m-3 mt-4"><strong>⏰경기 시간: </strong> <span id="game-time"></span></h3>
-                
+
             	<h3 class="card-text m-3"><strong>⌛신청 마감 시간: </strong> <span id="game-deadline"></span></h3>
                 <h5 class="card-text m-3 mt-4">
-                    <strong>👥참여 인원: </strong> 
-                    <span id="game-participants-min"></span> ~ 
+                    <strong>👥참여 인원: </strong>
+                    <span id="game-participants-min"></span> ~
                     <span id="game-participants-max"></span>
                 </h5>
                 <h5 class="card-text m-3">
@@ -96,12 +96,12 @@ async function GameDetail() {
         if (!response.ok) throw new Error('Failed to fetch game details.');
 
         let game = await response.json();
-        
+
         let time = game.time;
         let timeStr = makeDateStr(time);
         let deadline = game.deadline;
         let deadlineStr = makeDateStr(deadline);
-        
+
         document.getElementById('game-title').textContent = `Game #${gameId}`;
         document.getElementById('game-location').textContent = game.location;
         document.getElementById('game-time').textContent = timeStr;
@@ -124,7 +124,7 @@ async function participateGame() {
     console.log(url);
     try {
         const response = await fetch(url, {
-            method: "POST", 
+            method: "POST",
             headers: {
             	'Authorization': `Bearer ${token}`,
                 "Content-Type": "application/json",

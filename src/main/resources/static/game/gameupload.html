@@ -1,11 +1,94 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>경기 업로드</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
-<h2>경기 매칭</h2>
-<a href="../index.html">홈화면</a>
+<body class="container mt-5">
+<h2>경기 업로드</h2>
+<form id="gameForm">
+    <div class="mb-3">
+        <label class="form-label">장소</label>
+        <input type="text" class="form-control" id="location" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">경기 시간</label>
+        <input type="datetime-local" class="form-control" id="time" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">신청 마감 시간</label>
+        <input type="datetime-local" class="form-control" id="deadline" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">최소 인원</label>
+        <input type="number" class="form-control" id="participantMin" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">최대 인원</label>
+        <input type="number" class="form-control" id="participantMax" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">상대 인원</label>
+        <input type="number" class="form-control" id="againstPeople" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">경기 소개</label>
+        <textarea class="form-control" id="gameInfo" rows="3" required></textarea>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">공지사항</label>
+        <textarea class="form-control" id="gameNoti" rows="2" required></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">업로드</button>
+    <a href="../index.html" class="btn btn-link">홈 화면</a>
+</form>
+
+<div id="resultMsg" class="mt-3"></div>
+
+<script>
+    document.getElementById("gameForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const token = localStorage.getItem("token");
+        if (!token) {
+            alert("로그인이 필요합니다.");
+            return;
+        }
+
+        const payload = {
+            location: document.getElementById("location").value,
+            time: document.getElementById("time").value,
+            deadline: document.getElementById("deadline").value,
+            participantMin: parseInt(document.getElementById("participantMin").value),
+            participantMax: parseInt(document.getElementById("participantMax").value),
+            againstPeople: parseInt(document.getElementById("againstPeople").value),
+            gameInfo: document.getElementById("gameInfo").value,
+            gameNoti: document.getElementById("gameNoti").value
+        };
+
+        try {
+            const res = await fetch("/api/game", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const result = await res.json();
+
+            if (res.status === 201 && result.code === "POST_OR_PATCH_SUCCESS") {
+                alert("경기 업로드 성공!");
+                window.location.href = "../index.html";
+            } else {
+                document.getElementById("resultMsg").innerText = `[${result.code}] ${result.message}`;
+            }
+        } catch (err) {
+            document.getElementById("resultMsg").innerText = "요청 중 오류 발생";
+        }
+    });
+</script>
 </body>
 </html>

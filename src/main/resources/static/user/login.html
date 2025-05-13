@@ -32,8 +32,32 @@
         </div>
     </div>
 </div>
+    <script>
+         function login() {
+             const email = document.getElementById('email').value;
+             const password = document.getElementById('password').value;
 
-<script>
+             fetch('/auth/login', {
+                 method: 'POST',
+                 headers: {'Content-Type' : 'application/json'},
+                 body: JSON.stringify({email, password})
+             })
+                 .then(response => {
+                     console.log("로그인 응답 status:", response.status);
+                     return response.json();  // ✅ return 추가
+                 })
+                 .then(data => {
+                     console.log("로그인 응답 body:", data); // 👉 응답 확인용 로그
+                     if (data.data && data.data.token) {  // ✅ 조건은 data.data.token 확인
+                         localStorage.setItem('token', data.data.token);  // ✅ 저장도 data.data.token으로!
+                         alert('로그인 성공');
+                         window.location.href='../index.html';
+                     } else {
+                         alert('로그인 실패!');
+                     }
+                 });
+         }
+
     async function login() {
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;

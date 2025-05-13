@@ -26,42 +26,17 @@
 	    position: relative; /* 내용은 가상 요소 위로 표시되도록 설정 */
 	    z-index: 1;
 	}
-	
+
 </style>
 </head>
-<body class="m-4">
-	<nav class="navbar">
-		<div class="container d-flex justify-content-center">
-	   		<a class="navbar-brand mx-auto" href="/index.html">
-	        	<img src="/assets/img/tikitaka-logo.png" alt="Tikitaka" height="100px">
-	    	</a>
-	    	
-	    	<!-- 로그인이 안되어있으면 로그인이 뜨고 되어있으며 프로필이미지가 뜨게 -->
-	    	<div id="loginCheck">
-		    	<a href="/user/login.html" class="btn btn-primary m-1" id="btnLogin">로그인</a>
-		    	<a href="/user/signup.html" class="btn btn-primary" id="btnSignup">회원가입</a>
-		    	
-		    	<a class="navbar-brand" href="/user/mypage.html">
-		    		<img id="userProfileImage" src="/assets/img/noProfile.png" alt="User" style="width:50px; height:50px; border-radius:50%;">
-		    	</a>
-	    	</div>
-	  	</div>
-	</nav>
-    
-    <div class="container">
-    	<a href="/game/gameupload.html" class="btn btn-success m-2" id="btnGameUpload">경기 업로드</a>
-        <div class="row" id="game-list">
-            <!-- JavaScript로 카드 내용이 여기에 추가됨 -->
-        </div>
-    </div>
-	
+
 <script src="/assets/js/common.js"></script>
 <script>
 	window.onload = function() {
 		checkLogin();
 		listGame();
 	}
-	
+
     async function listGame() {
     	let url = 'api/game/list';
         try{
@@ -70,16 +45,16 @@
             let data = await response.json();
             console.log(data);
             makeListHtml(data);
-            
+
         }catch(error){
             console.log(error);
             alert('목록 처리 중 오류 발생!');
-        }   
+        }
     }
 
     function makeListHtml(list) {
         let listHTML = ``;
-        
+
         // list 배열을 순회하면서 카드 형식으로 HTML을 추가
         list.forEach(el => {
         	let id = el.id;
@@ -115,5 +90,56 @@
             });
     }
 </script>
+  
+    <body class="m-4">
+    <nav class="navbar">
+        <div class="container d-flex justify-content-center">
+            <a class="navbar-brand mx-auto" href="/index.html">
+                <img src="/assets/img/tikitaka-logo.png" alt="Tikitaka" height="100px">
+            </a>
+
+            <!-- 로그인이 안되어있으면 로그인이 뜨고 되어있으며 프로필이미지가 뜨게 -->
+            <div id="loginCheck">
+                <a href="/user/login.html" class="btn btn-primary m-1" id="btnLogin">로그인</a>
+                <a href="/user/signup.html" class="btn btn-primary" id="btnSignup">회원가입</a>
+
+                <a class="navbar-brand" href="/user/mypage.html">
+                    <img id="userProfileImage" src="/assets/img/noProfile.png" alt="User" style="width:50px; height:50px; border-radius:50%;">
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <a href="/game/gameupload.html" class="btn btn-success m-2" id="btnGameUpload">경기 업로드</a>
+        <div class="row" id="game-list">
+            <!-- JavaScript로 카드 내용이 여기에 추가됨 -->
+        </div>
+    </div>
+
+
+
+
+    <script>
+        // 저장된 토큰 가져오기
+        const token = localStorage.getItem('token');
+        console.log("저장된 토큰:", token);
+
+        if (token) {
+            fetch('auth/user/me', {
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('welcomeMsg').innerText = `환영합니다 "${data.nickname}"님`;
+                    localStorage.setItem('userId', data.userId);
+                });
+        } else {
+            document.getElementById('welcomeMsg').innerText = '로그인 해주세요';
+        }
+    </script>
+
 </body>
 </html>
