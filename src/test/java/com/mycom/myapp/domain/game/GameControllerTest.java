@@ -9,6 +9,7 @@ import com.mycom.myapp.common.enums.ResponseCode;
 import com.mycom.myapp.common.error.exceptions.UnauthorizedException;
 import com.mycom.myapp.domain.game.dto.GameCreateRequest;
 import com.mycom.myapp.domain.user.UserService;
+import com.mycom.myapp.domain.userGame.UserGameService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,6 +38,9 @@ public class GameControllerTest {
 
     @Mock
     private UserService userService;
+
+    @Mock
+    private UserGameService userGameService;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
