@@ -19,8 +19,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.mycom.myapp.common.enums.MatchStatus.COMPLETED;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -81,8 +80,12 @@ public class UserGameServiceTest {
         User user = new User();
         user.setId(userId);
 
+        User host = new User();
+        host.setId(1L);
+
         Game game = new Game();
         game.setId(gameId);
+        game.setHost(host);
 
         UserGame userGame = new UserGame();
         userGame.setGame(game);
@@ -98,5 +101,29 @@ public class UserGameServiceTest {
 
         //then
         assertEquals(MatchStatus.CANCELLED, userGame.getMatchStatus());
+    }
+
+    @Test   // 참가자가 경기취소(주최자) 취소 테스트
+    void testCancelParticipation_fail_whenHostTriesToCancel() {
+        Long gameId = 1L;
+        Long userId = 10L;
+
+        User host = new User();
+        host.setId(userId);
+
+        Game game = new Game();
+        game.setId(gameId);
+        game.setHost(host);
+
+        when(jwtTokenProvider.getUserFromSecurityContext()).thenReturn(host);
+        when(gameRepository.findById(gameId)).thenReturn(Optional.of(game));
+
+        RuntimeException ex = assertThrows(RuntimeException.class, () -> {
+            userGameService.cancelParticipation(gameId);
+        });
+
+        assertEquals("주최자는 참가 취소가 불가능 합니다.", ex.getMessage());
+
+
     }
 }
