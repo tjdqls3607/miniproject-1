@@ -1,6 +1,7 @@
 package com.mycom.myapp.domain.userGame;
 
 import com.fasterxml.jackson.databind.deser.DataFormatReaders;
+import com.mycom.myapp.common.auth.JwtTokenProvider;
 import com.mycom.myapp.common.entity.Game;
 import com.mycom.myapp.common.entity.User;
 import com.mycom.myapp.common.entity.UserGame;
@@ -17,8 +18,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 import java.util.Optional;
 
+import static com.mycom.myapp.common.enums.MatchStatus.COMPLETED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 
@@ -38,38 +41,15 @@ public class UserGameServiceTest {
     @Mock
     private UserGameRepository userGameRepository;
 
-    @Test
-    void testCancelParticipation_success() {
+    @Mock
+    private JwtTokenProvider jwtTokenProvider;
 
-        Long gameId = 1L;
-        Long userId = 2L;
 
-        User mockUser = new User();
-        mockUser.setId(userId);
-
-        Game mockGame = new Game();
-        mockGame.setId(gameId);
-
-        UserGame userGame = new UserGame();
-        userGame.setGame(mockGame);
-        userGame.setUser(mockUser);
-        userGame.setMatchStatus(MatchStatus.COMPLETED);
-
-        when(gameRepository.findById(gameId)).thenReturn(Optional.of(mockGame));
-        when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
-        when(userGameRepository.findByUserAndGame(mockUser, mockGame)).thenReturn(Optional.of(userGame));
-
-        userGameService.cancelParticipation(gameId, userId);
-
-        assertEquals(MatchStatus.CANCELLED, userGame.getMatchStatus());
-
-    }
-
-    @Test
-    void testDeleteMatch_success() {
+    @Test   // 매칭 취소(주최자)
+    void testDeleteMatch_HOST_success() {
         // given
         Long hostId = 1L;
-        Long gameId = 10L;
+        Long gameId = 100L;
 
         User host = new User();
         host.setId(hostId);
@@ -77,23 +57,46 @@ public class UserGameServiceTest {
         Game game = new Game();
         game.setId(gameId);
         game.setHost(host);
-        game.setDeleted(false);
 
         UserGame ug1 = new UserGame();
-        ug1.setMatchStatus(MatchStatus.COMPLETED);
-
         UserGame ug2 = new UserGame();
-        ug2.setMatchStatus(MatchStatus.COMPLETED);
 
+        when(jwtTokenProvider.getUserFromSecurityContext()).thenReturn(host);   // 매칭삭제를 jwt로 받고있기 때문
         when(gameRepository.findById(gameId)).thenReturn(Optional.of(game));
         when(userGameRepository.findByGame(game)).thenReturn(List.of(ug1, ug2));
 
-        // when
-        userGameService.deleteMatch(gameId, hostId);
+        //when
+        userGameService.deleteMatch(gameId);
 
         // then
-        assertTrue(game.isDeleted());
-        assertEquals(MatchStatus.CANCELLED, ug1.getMatchStatus());
-        assertEquals(MatchStatus.CANCELLED, ug2.getMatchStatus());
+        verify(userGameRepository).deleteAll(List.of(ug1, ug2));
+        verify(gameRepository).delete(game);
+    }
+
+    @Test   // 매칭 취소(참가자)
+    void testCancelParticipation_softDelete() {
+        Long gameId = 200L;
+        Long userId = 2L;
+
+        User user = new User();
+        user.setId(userId);
+
+        Game game = new Game();
+        game.setId(gameId);
+
+        UserGame userGame = new UserGame();
+        userGame.setGame(game);
+        userGame.setUser(user);
+        userGame.setMatchStatus(MatchStatus.COMPLETED);
+
+        when(jwtTokenProvider.getUserFromSecurityContext()).thenReturn(user);
+        when(gameRepository.findById(gameId)).thenReturn(Optional.of(game));
+        when(userGameRepository.findByUserAndGame(user, game)).thenReturn(Optional.of(userGame));
+
+        //when
+        userGameService.cancelParticipation(gameId);
+
+        //then
+        assertEquals(MatchStatus.CANCELLED, userGame.getMatchStatus());
     }
 }
