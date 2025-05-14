@@ -13,7 +13,7 @@
         <input type="text" class="form-control" id="location" required>
     </div>
     <div class="mb-3">
-        <label class="form-label">경기 시간</label>
+        <label class="form-label">경기 시작 시간</label>
         <input type="datetime-local" class="form-control" id="time" required>
     </div>
     <div class="mb-3">
@@ -30,7 +30,7 @@
     </div>
     <div class="mb-3">
         <label class="form-label">상대 인원</label>
-        <input type="number" class="form-control" id="againstPeople" required>
+        <input type="text" class="form-control" id="againstPeople" required>
     </div>
     <div class="mb-3">
         <label class="form-label">경기 소개</label>
@@ -62,7 +62,7 @@
             deadline: document.getElementById("deadline").value,
             participantMin: parseInt(document.getElementById("participantMin").value),
             participantMax: parseInt(document.getElementById("participantMax").value),
-            againstPeople: parseInt(document.getElementById("againstPeople").value),
+            againstPeople: document.getElementById("againstPeople").value,
             gameInfo: document.getElementById("gameInfo").value,
             gameNoti: document.getElementById("gameNoti").value
         };

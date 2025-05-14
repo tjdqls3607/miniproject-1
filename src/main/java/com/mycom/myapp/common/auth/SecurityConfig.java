@@ -54,7 +54,8 @@ public class SecurityConfig {
                                     "/user/**",
                                     "/api/auth/**",
                                     "/assets/**",
-                                    "/game/matching.html"
+                                    "/game/matching.html",
+                                    "/favicon.ico"
                             ).permitAll()
                             .requestMatchers(
                                     HttpMethod.GET,"/api/game/**"
