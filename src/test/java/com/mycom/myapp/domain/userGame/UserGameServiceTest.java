@@ -211,7 +211,6 @@ public class UserGameServiceTest {
         
         when(jwtTokenProvider.getUserFromSecurityContext()).thenReturn(mockUser);
         when(gameRepository.findById(gameId)).thenReturn(Optional.of(mockGame));
-        when(userGameRepository.existsByUserIdAndGameId(mockUser.getId(), gameId)).thenReturn(false);
 
         userGameService.participateGame(gameId);
 
@@ -239,10 +238,11 @@ public class UserGameServiceTest {
         Long gameId = 1L;
         User mockUser = User.builder().id(111L).build();
         Game mockGame = Game.builder().id(gameId).build();
+        UserGame mockUserGame = UserGame.builder().game(mockGame).user(mockUser).matchStatus(MatchStatus.COMPLETED).build();
 
         when(jwtTokenProvider.getUserFromSecurityContext()).thenReturn(mockUser);
         when(gameRepository.findById(gameId)).thenReturn(Optional.of(mockGame));
-        when(userGameRepository.existsByUserIdAndGameId(mockUser.getId(), gameId)).thenReturn(true);
+        when(userGameRepository.findByUserAndGame(mockUser, mockGame)).thenReturn(Optional.of(mockUserGame));
 
         IllegalStateException exception = assertThrows(IllegalStateException.class, 
         		() -> userGameService.participateGame(gameId));
