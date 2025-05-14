@@ -2,6 +2,7 @@ package com.mycom.myapp.domain.game;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,7 +33,7 @@ public class GameService {
     	List<GameDto> gamesDtoList = new ArrayList<>();
     	games.forEach( game -> {
     		
-    		if(game.getDeadline().isAfter(LocalDateTime.now())) { // 마감시간 지나지 않은 것만
+    		if(game.getDeadline().isAfter(LocalDateTime.now()) && game.getTime().isAfter(LocalDateTime.now())) { // 마감시간, 시작시간 지나지 않은 것만
         		GameDto gameDto = GameDto.builder()
         				.id(game.getId())
         				.location(game.getLocation())
@@ -48,6 +49,9 @@ public class GameService {
     		}
     		
     	});
+
+    	gamesDtoList.sort(Comparator.comparing(GameDto::getTime));
+    	
     	return gamesDtoList;
     }
     
