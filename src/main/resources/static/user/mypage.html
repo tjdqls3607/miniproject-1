@@ -84,6 +84,9 @@
             .then(userData => {
                 userId = userData.userId;
                 document.getElementById('nickname').innerText = userData.nickname;
+
+                document.getElementById('beforeDate').value = getCurrentDateTime();
+
                 loadMyParticipations();
             })
             .catch(err => {
@@ -113,15 +116,31 @@
                 const listEl = document.getElementById('participationList');
                 listEl.innerHTML = '';
 
+
+
+
                 data.forEach(match => {
                     const li = document.createElement('li');
                     li.className = 'list-group-item d-flex justify-content-between align-items-center';
 
+                    const gameTime = new Date(match.time);
+                    const now = new Date();
+                    const isPast = gameTime < now;
+
+
                     let buttons = '';
-                    if (userId === match.hostId) {
-                        buttons = `<button class="btn btn-outline-secondary btn-sm" onclick="deleteMatch(${match.id})">경기 취소(주최자)</button>`;
+                    if (isPast) {
+                        buttons = `<button class="btn btn-secondary btn-sm" disabled>종료됨</button>`;
                     } else {
-                        buttons = `<button class="btn btn-outline-danger btn-sm" onclick="cancelParticipation(${match.id})">참가 취소</button>`;
+                        if (userId === match.hostId) {
+                            buttons = `<button class="btn btn-outline-secondary btn-sm" onclick="deleteMatch(${match.id})">
+                          경기 취소(주최자)
+                       </button>`;
+                        } else {
+                            buttons = `<button class="btn btn-outline-danger btn-sm" onclick="cancelParticipation(${match.id})">
+                          참가 취소
+                       </button>`;
+                        }
                     }
 
                     li.innerHTML = `
@@ -166,6 +185,16 @@
                 alert(msg);
                 loadMyParticipations();
             });
+    }
+
+    function getCurrentDateTime() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
     }
 
     document.getElementById('filterBtn').onclick = loadMyParticipations;
