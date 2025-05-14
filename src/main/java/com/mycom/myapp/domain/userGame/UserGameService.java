@@ -15,8 +15,15 @@ import com.mycom.myapp.common.enums.ResponseCode;
 import com.mycom.myapp.common.error.exceptions.NotFoundException;
 import com.mycom.myapp.domain.game.GameRepository;
 import com.mycom.myapp.domain.user.UserRepository;
+import com.mycom.myapp.domain.userGame.UserGameDto;
+import com.mycom.myapp.domain.userGame.UserGameRepository;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
