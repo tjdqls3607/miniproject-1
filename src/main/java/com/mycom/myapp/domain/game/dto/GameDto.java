@@ -7,12 +7,14 @@ import com.mycom.myapp.common.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode
 public class GameDto {
 	private Long id; // 게임 id
     private String location; // 경기 장소

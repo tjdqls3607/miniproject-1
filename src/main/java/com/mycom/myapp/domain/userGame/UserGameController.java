@@ -39,14 +39,14 @@ public class UserGameController {
 
     // 매칭 삭제 (주최자용)
     @DeleteMapping("/{gameId}")
-    public ResponseEntity<?> deleteMatch(@PathVariable Long gameId) {
+    public ResponseEntity<?> deleteMatch(@PathVariable("gameId") Long gameId) {
         userGameService.deleteMatch(gameId);
         return ResponseEntity.ok("매칭이 취소되었습니다.");
     }
 
     // 매칭 참가 취소 (참가자용)
     @PostMapping("/{gameId}/cancel")
-    public ResponseEntity<String> cancelParticipation (@PathVariable Long gameId) {
+    public ResponseEntity<String> cancelParticipation (@PathVariable("gameId") Long gameId) {
         userGameService.cancelParticipation(gameId);
         return ResponseEntity.ok("매칭을 취소하였습니다.");
     }
@@ -59,16 +59,16 @@ public class UserGameController {
 
     // 내가 참가한 매칭 목록 조회 (DTO 리턴)
     @GetMapping("/my-participations")
-    public List<UserGameDto> getMyParticipations(@RequestParam Long userId,
-                                                 @RequestParam(required = false) MatchStatus status,
-                                                 @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)LocalDateTime before,
-                                                 @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)LocalDateTime after) {
+    public List<UserGameDto> getMyParticipations(@RequestParam("userId") Long userId,
+                                                 @RequestParam(name = "status", required = false) MatchStatus status,
+                                                 @RequestParam(name = "before", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)LocalDateTime before,
+                                                 @RequestParam(name = "after", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)LocalDateTime after) {
         return userGameService.getMyParticipations(userId, status, before, after);
     }
 
     // 내가 주최한 매칭 목록 조회 (DTO 리턴)
     @GetMapping("/my-created")
-    public List<UserGameDto> getMyCreatedMatches(@RequestParam Long userId) {
+    public List<UserGameDto> getMyCreatedMatches(@RequestParam("userId") Long userId) {
         User user = jwtTokenProvider.getUserFromSecurityContext();
         return userGameService.getMyCreatedMatches(userId);
     }

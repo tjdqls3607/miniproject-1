@@ -1,6 +1,24 @@
 package com.mycom.myapp.domain.userGame;
 
-import com.fasterxml.jackson.databind.deser.DataFormatReaders;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import com.mycom.myapp.common.auth.JwtTokenProvider;
 import com.mycom.myapp.common.entity.Game;
 import com.mycom.myapp.common.entity.User;
@@ -10,23 +28,6 @@ import com.mycom.myapp.common.enums.ResponseCode;
 import com.mycom.myapp.common.error.exceptions.NotFoundException;
 import com.mycom.myapp.domain.game.GameRepository;
 import com.mycom.myapp.domain.user.UserRepository;
-import com.mycom.myapp.domain.user.UserService;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-
-import static com.mycom.myapp.common.enums.MatchStatus.COMPLETED;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 
 
 @ExtendWith(MockitoExtension.class)
@@ -43,11 +44,12 @@ public class UserGameServiceTest {
 
     @Mock
     private UserGameRepository userGameRepository;
-
+    
     @Mock
     private JwtTokenProvider jwtTokenProvider;
-
-
+    
+    
+    
     @Test   // 매칭 취소(주최자)
     void testDeleteMatch_HOST_success() {
         // given
@@ -199,12 +201,29 @@ public class UserGameServiceTest {
 
 
     }
+    
+    @Test
+    @DisplayName("게임 참여 성공")
+    void participateGame_Success() {
+        Long gameId = 1L;
+        User mockUser = User.builder().id(1L).build();
+        Game mockGame = Game.builder().id(gameId).build();
+        
+        when(jwtTokenProvider.getUserFromSecurityContext()).thenReturn(mockUser);
+        when(gameRepository.findById(gameId)).thenReturn(Optional.of(mockGame));
 
+        userGameService.participateGame(gameId);
+
+        verify(userGameRepository, times(1)).save(any(UserGame.class));
+    }
+    
     @Test
     @DisplayName("게임 참여 실패 - 존재하지 않는 게임")
     void participateGame_NotFoundGame() {
         Long gameId = 1L;
-        when(jwtTokenProvider.getUserFromSecurityContext()).thenReturn(User.builder().id(11L).build());
+        User mockUser = User.builder().id(111L).build();
+        
+        when(jwtTokenProvider.getUserFromSecurityContext()).thenReturn(mockUser);
         when(gameRepository.findById(gameId)).thenReturn(Optional.empty());
 
         NotFoundException exception = assertThrows(NotFoundException.class,
@@ -217,15 +236,17 @@ public class UserGameServiceTest {
     @DisplayName("게임 참여 실패 - 이미 참여한 게임")
     void participateGame_AlreadyParticipated() {
         Long gameId = 1L;
-        User mockUser = User.builder().id(1L).build();
+        User mockUser = User.builder().id(111L).build();
         Game mockGame = Game.builder().id(gameId).build();
+        UserGame mockUserGame = UserGame.builder().game(mockGame).user(mockUser).matchStatus(MatchStatus.COMPLETED).build();
 
         when(jwtTokenProvider.getUserFromSecurityContext()).thenReturn(mockUser);
         when(gameRepository.findById(gameId)).thenReturn(Optional.of(mockGame));
-        when(userGameRepository.existsByUserIdAndGameId(mockUser.getId(), gameId)).thenReturn(true);
+        when(userGameRepository.findByUserAndGame(mockUser, mockGame)).thenReturn(Optional.of(mockUserGame));
 
-        IllegalStateException exception = assertThrows(IllegalStateException.class,
-                () -> userGameService.participateGame(gameId));
+        IllegalStateException exception = assertThrows(IllegalStateException.class, 
+        		() -> userGameService.participateGame(gameId));
+
         assertEquals("이미 신청한 게임입니다.", exception.getMessage());
     }
 }

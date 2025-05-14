@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequiredArgsConstructor
 public class GameService {
+
 	private final GameRepository gameRepository;
 
 	public Game save(Game game) {

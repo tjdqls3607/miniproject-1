@@ -49,7 +49,7 @@ public class GameServiceTest {
         // 또한 save 메서드가 반환하는 객체가 예상대로인지 확인
         assertEquals(game, savedGame);
     }
-
+    
     @Test
     void listGame_Deadline() {
         // Given
