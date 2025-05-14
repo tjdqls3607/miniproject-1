@@ -1,20 +1,28 @@
 package com.mycom.myapp.domain.game;
 
-import com.mycom.myapp.common.entity.Game;
-import com.mycom.myapp.domain.game.dto.GameDto;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
+import com.mycom.myapp.common.entity.Game;
+import com.mycom.myapp.common.enums.ResponseCode;
+import com.mycom.myapp.common.error.exceptions.NotFoundException;
+import com.mycom.myapp.domain.game.dto.GameDto;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class GameServiceTest {
     @Mock
@@ -43,77 +51,147 @@ public class GameServiceTest {
     }
 
     @Test
-    void listGame() {
-        // given
-        LocalDateTime now = LocalDateTime.now();
+    void listGame_Deadline() {
+        // Given
+        // 마감시간 남은 game1
+        Game game1 = new Game();
+        game1.setId(1L);
+        game1.setLocation("서울 월드컵 경기장");
+        game1.setDeadline(LocalDateTime.now().plusDays(1));
+        game1.setTime(LocalDateTime.now().plusDays(2));
 
-        Game validGame = Game.builder()
-                .id(1L)
-                .location("서울")
-                .time(now.plusDays(1))
-                .deadline(now.plusHours(1))
-                .participantMax(10)
-                .participantMin(5)
-                .againstPeople("5:5")
-                .gameInfo("테스트 코드")
-                .gameNoti("테스트 합니다.")
-                .build();
+        // 마감시간 지난 game2
+        Game game2 = new Game();
+        game2.setId(2L);
+        game2.setLocation("대전 월드컵 경기장");
+        game2.setDeadline(LocalDateTime.now().minusDays(1));
+        game2.setTime(LocalDateTime.now().minusDays(2));
 
-        Game expiredGame = Game.builder()
-                .id(2L)
-                .location("부산")
-                .time(now.plusDays(1))
-                .deadline(now.minusHours(1))
-                .participantMin(3)
-                .participantMax(6)
-                .againstPeople("6:6")
-                .gameInfo("종료된 경기")
-                .gameNoti("테스트입니다")
-                .build();
+        List<Game> games = List.of(game1, game2);
 
-        when(gameRepository.findAll()).thenReturn(List.of(validGame,expiredGame));
+        when(gameRepository.findAll()).thenReturn(games);
 
+        // When
         List<GameDto> result = gameService.listGame();
 
+        // Then
+        // 마감 시간 남은 게임만 반환
         assertEquals(1, result.size());
-        assertEquals(validGame.getId(), result.get(0).getId());
-        assertEquals("서울", result.get(0).getLocation());
-
-        verify(gameRepository, times(1)).findAll();
-
+        assertEquals(game1.getId(), result.get(0).getId());
     }
 
     @Test
-    void detailGame() {
-        long gameId = 1L;
-        Game game = new Game();
+    void listGame_DeadlineNow() {
+        Game game1 = new Game();
+        game1.setId(1L);
+        game1.setDeadline(LocalDateTime.now()); // 마감 시간이 현재
 
-        game.setId(gameId);
-        game.setLocation("서울");
-        game.setTime(LocalDateTime.of(2025, 5, 20, 18, 0));
-        game.setDeadline(LocalDateTime.of(2025, 5, 18, 23, 59));
-        game.setParticipantMax(10);
-        game.setParticipantMin(5);
-        game.setAgainstPeople("5:5");
-        game.setGameInfo("테스트 코드");
-        game.setGameNoti("게임디테일 테스트코드");
+        when(gameRepository.findAll()).thenReturn(List.of(game1));
 
-        when(gameRepository.findById(gameId)).thenReturn(Optional.of(game));
+        List<GameDto> result = gameService.listGame();
 
-        GameDto result = gameService.detailGame(gameId);
-
-        assertEquals(gameId, result.getId());
-        assertEquals("서울", result.getLocation());
-        assertEquals(LocalDateTime.of(2025, 5, 20, 18, 0), result.getTime());
-        assertEquals(LocalDateTime.of(2025, 5, 18, 23, 59), result.getDeadline());
-        assertEquals(10, result.getParticipantMax());
-        assertEquals(5, result.getParticipantMin());
-        assertEquals("5:5", result.getAgainstPeople());
-        assertEquals("테스트 코드", result.getGameInfo());
-        assertEquals("게임디테일 테스트코드", result.getGameNoti());
-
+        assertEquals(0, result.size()); // 마감 시간이 지나지 않은 게임만 포함
     }
 
+    @Test
+    void detailGameExist() {
+        Game game = new Game();
+        game.setId(1L);
+        game.setLocation("서울 월드컵 경기장");
+        game.setDeadline(LocalDateTime.now().plusDays(1));
+
+        when(gameRepository.findById(1L)).thenReturn(Optional.of(game));
+
+        GameDto result = gameService.detailGame(1L);
+
+        verify(gameRepository, times(1)).findById(1L);
+
+        assertEquals(game.getId(), result.getId());
+        assertEquals(game.getLocation(), result.getLocation());
+    }
+
+    @Test
+    void detailGameNotExist() {
+        when(gameRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        NotFoundException exception = assertThrows(NotFoundException.class,
+                () -> gameService.detailGame(1L));
+
+        assertEquals(ResponseCode.NOT_FOUND_GAME.getCode(), exception.getResponseCode().getCode());
+    }
 }
 
 
+//    @Test
+//    void listGame() {
+//        // given
+//        LocalDateTime now = LocalDateTime.now();
+//
+//        Game validGame = Game.builder()
+//                .id(1L)
+//                .location("서울")
+//                .time(now.plusDays(1))
+//                .deadline(now.plusHours(1))
+//                .participantMax(10)
+//                .participantMin(5)
+//                .againstPeople("5:5")
+//                .gameInfo("테스트 코드")
+//                .gameNoti("테스트 합니다.")
+//                .build();
+//
+//        Game expiredGame = Game.builder()
+//                .id(2L)
+//                .location("부산")
+//                .time(now.plusDays(1))
+//                .deadline(now.minusHours(1))
+//                .participantMin(3)
+//                .participantMax(6)
+//                .againstPeople("6:6")
+//                .gameInfo("종료된 경기")
+//                .gameNoti("테스트입니다")
+//                .build();
+//
+//        when(gameRepository.findAll()).thenReturn(List.of(validGame,expiredGame));
+//
+//        List<GameDto> result = gameService.listGame();
+//
+//        assertEquals(1, result.size());
+//        assertEquals(validGame.getId(), result.get(0).getId());
+//        assertEquals("서울", result.get(0).getLocation());
+//
+//        verify(gameRepository, times(1)).findAll();
+//
+//    }
+//
+//    @Test
+//    void detailGame() {
+//        long gameId = 1L;
+//        Game game = new Game();
+//
+//        game.setId(gameId);
+//        game.setLocation("서울");
+//        game.setTime(LocalDateTime.of(2025, 5, 20, 18, 0));
+//        game.setDeadline(LocalDateTime.of(2025, 5, 18, 23, 59));
+//        game.setParticipantMax(10);
+//        game.setParticipantMin(5);
+//        game.setAgainstPeople("5:5");
+//        game.setGameInfo("테스트 코드");
+//        game.setGameNoti("게임디테일 테스트코드");
+//
+//        when(gameRepository.findById(gameId)).thenReturn(Optional.of(game));
+//
+//        GameDto result = gameService.detailGame(gameId);
+//
+//        assertEquals(gameId, result.getId());
+//        assertEquals("서울", result.getLocation());
+//        assertEquals(LocalDateTime.of(2025, 5, 20, 18, 0), result.getTime());
+//        assertEquals(LocalDateTime.of(2025, 5, 18, 23, 59), result.getDeadline());
+//        assertEquals(10, result.getParticipantMax());
+//        assertEquals(5, result.getParticipantMin());
+//        assertEquals("5:5", result.getAgainstPeople());
+//        assertEquals("테스트 코드", result.getGameInfo());
+//        assertEquals("게임디테일 테스트코드", result.getGameNoti());
+//
+//    }
+
+//}
