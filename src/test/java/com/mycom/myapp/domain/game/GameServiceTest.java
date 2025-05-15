@@ -119,5 +119,36 @@ public class GameServiceTest {
 
         assertEquals(ResponseCode.NOT_FOUND_GAME.getCode(), exception.getResponseCode().getCode());
     }
+
+    @Test
+    void searchGameLocation_Success() {        
+    	// Given
+        // 마감시간 남은 game1
+        Game game1 = new Game();
+        game1.setId(1L);
+        game1.setLocation("서울 월드컵 경기장");
+        game1.setDeadline(LocalDateTime.now().plusDays(1));
+        game1.setTime(LocalDateTime.now().plusDays(2));
+
+        // 마감시간 지난 game2
+        Game game2 = new Game();
+        game2.setId(2L);
+        game2.setLocation("서울 송파구 잠실 경기장");
+        game2.setDeadline(LocalDateTime.now().minusDays(1));
+        game2.setTime(LocalDateTime.now().minusDays(2));
+
+        List<Game> games = List.of(game1, game2);
+
+        when(gameRepository.findByLocationLike("%서울%")).thenReturn(games);
+
+        // When
+        List<GameDto> result = gameService.searchGameLocation("서울");
+
+        // Then
+        // 마감 시간 남은 게임만 반환
+        assertEquals(1, result.size());
+        assertEquals(game1.getId(), result.get(0).getId());
+    }
+
 }
 

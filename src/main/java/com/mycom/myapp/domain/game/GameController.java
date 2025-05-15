@@ -2,13 +2,13 @@ package com.mycom.myapp.domain.game;
 
 import java.util.List;
 
-import com.mycom.myapp.domain.userGame.UserGameService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mycom.myapp.common.ResponseDTO;
@@ -19,6 +19,7 @@ import com.mycom.myapp.common.enums.ResponseCode;
 import com.mycom.myapp.domain.game.dto.GameCreateRequest;
 import com.mycom.myapp.domain.game.dto.GameDto;
 import com.mycom.myapp.domain.user.UserService;
+import com.mycom.myapp.domain.userGame.UserGameService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -79,4 +80,9 @@ public class GameController {
 		return gameService.detailGame(gameId);
 	}
 	
+	@GetMapping("/search")
+	public List<GameDto> searchGameLocation(@RequestParam("location") String location){
+		log.debug("search 출력");
+		return gameService.searchGameLocation(location);
+	}
 }

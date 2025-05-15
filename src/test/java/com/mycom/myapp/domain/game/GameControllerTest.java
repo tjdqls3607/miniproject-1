@@ -173,4 +173,40 @@ public class GameControllerTest {
         assertEquals(ResponseCode.NOT_FOUND_GAME.getCode(), exception.getResponseCode().getCode());
     }
 
+    @Test
+    void searchGameSuccess() {
+    	// Given: Mock된 게임 목록
+        GameDto game1 = GameDto.builder()
+                .id(1L)
+                .location("서울 월드컵 경기장")
+                .time(LocalDateTime.now().plusDays(1))
+                .deadline(LocalDateTime.now().plusHours(12))
+                .participantMin(5)
+                .participantMax(10)
+                .againstPeople("무적 FC")
+                .gameInfo("친선 경기")
+                .gameNoti("시간 엄수")
+                .build();
+
+        GameDto game2 = GameDto.builder()
+                .id(2L)
+                .location("서울 송파구 잠실 경기장")
+                .time(LocalDateTime.now().plusDays(2))
+                .deadline(LocalDateTime.now().plusHours(24))
+                .participantMin(6)
+                .participantMax(12)
+                .againstPeople("부산 유나이티드")
+                .gameInfo("리그 경기")
+                .gameNoti("경기장 규정 준수")
+                .build();
+        
+        List<GameDto> mockGames = List.of(game1, game2);
+        when(gameService.searchGameLocation("서울")).thenReturn(mockGames);
+
+        // When: listGame 호출
+        List<GameDto> result = gameController.searchGameLocation("서울");
+
+        // Then: 반환 값 검증
+        assertThat(result).containsExactlyInAnyOrderElementsOf(mockGames);
+    }
 }

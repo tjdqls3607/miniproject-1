@@ -80,4 +80,33 @@ public class GameService {
 
 		return gameDto;
 	}
+	
+	public List<GameDto> searchGameLocation(String location) {
+		List<Game> games = gameRepository.findByLocationLike("%" + location + "%");
+
+
+		List<GameDto> gamesDtoList = new ArrayList<>();
+		games.forEach( game -> {
+
+			if(game.getDeadline().isAfter(LocalDateTime.now()) && game.getTime().isAfter(LocalDateTime.now())) { // 마감시간, 시작시간 지나지 않은 것만
+				GameDto gameDto = GameDto.builder()
+						.id(game.getId())
+						.location(game.getLocation())
+						.time(game.getTime())
+						.deadline(game.getDeadline())
+						.participantMin(game.getParticipantMin())
+						.participantMax(game.getParticipantMax())
+						.againstPeople(game.getAgainstPeople())
+						.gameInfo(game.getGameInfo())
+						.gameNoti(game.getGameNoti())
+						.build();
+				gamesDtoList.add(gameDto);
+			}
+
+		});
+
+		gamesDtoList.sort(Comparator.comparing(GameDto::getTime));
+
+		return gamesDtoList;
+	}
 }
