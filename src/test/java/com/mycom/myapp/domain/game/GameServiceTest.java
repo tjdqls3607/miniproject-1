@@ -49,7 +49,7 @@ public class GameServiceTest {
         // 또한 save 메서드가 반환하는 객체가 예상대로인지 확인
         assertEquals(game, savedGame);
     }
-    
+
     @Test
     void listGame_Deadline() {
         // Given
@@ -121,8 +121,8 @@ public class GameServiceTest {
     }
 
     @Test
-    void searchGameLocation_Success() {        
-    	// Given
+    void searchGameLocation_Success() {
+        // Given
         // 마감시간 남은 game1
         Game game1 = new Game();
         game1.setId(1L);
@@ -151,4 +151,3 @@ public class GameServiceTest {
     }
 
 }
-

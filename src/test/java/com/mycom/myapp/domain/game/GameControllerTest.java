@@ -95,10 +95,10 @@ public class GameControllerTest {
         // 예외 발생 후 401 상태 코드가 반환되어야 함
         assertEquals(ResponseCode.INVALID_TOKEN.getCode(), exception.getResponseCode().getCode());
     }
-    
+
     @Test
     void listGameSuccess() {
-    	// Given: Mock된 게임 목록
+        // Given: Mock된 게임 목록
         GameDto game1 = GameDto.builder()
                 .id(1L)
                 .location("서울 월드컵 경기장")
@@ -122,7 +122,7 @@ public class GameControllerTest {
                 .gameInfo("리그 경기")
                 .gameNoti("경기장 규정 준수")
                 .build();
-        
+
         List<GameDto> mockGames = List.of(game1, game2);
         when(gameService.listGame()).thenReturn(mockGames);
 
@@ -132,7 +132,7 @@ public class GameControllerTest {
         // Then: 반환 값 검증
         assertThat(result).containsExactlyInAnyOrderElementsOf(mockGames);
     }
-    
+
     @Test
     void detailGameSuccess() {
         // Given: 특정 게임의 상세 정보
@@ -199,7 +199,6 @@ public class GameControllerTest {
                 .gameInfo("리그 경기")
                 .gameNoti("경기장 규정 준수")
                 .build();
-        
         List<GameDto> mockGames = List.of(game1, game2);
         when(gameService.searchGameLocation("서울")).thenReturn(mockGames);
 

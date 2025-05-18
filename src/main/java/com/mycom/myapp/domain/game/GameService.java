@@ -80,7 +80,6 @@ public class GameService {
 
 		return gameDto;
 	}
-	
 	public List<GameDto> searchGameLocation(String location) {
 		List<Game> games = gameRepository.findByLocationLike("%" + location + "%");
 

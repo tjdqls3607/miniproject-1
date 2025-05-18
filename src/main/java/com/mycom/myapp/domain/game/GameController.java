@@ -79,10 +79,11 @@ public class GameController {
 		log.debug("detail 출력");
 		return gameService.detailGame(gameId);
 	}
-	
-	@GetMapping("/search")
-	public List<GameDto> searchGameLocation(@RequestParam("location") String location){
-		log.debug("search 출력");
-		return gameService.searchGameLocation(location);
-	}
+    
+    @GetMapping("/search")
+    public List<GameDto> searchGameLocation(@RequestParam("location") String location){
+        log.debug("search 출력");
+        return gameService.searchGameLocation(location);
+    }
+
 }
