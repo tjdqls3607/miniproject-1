@@ -60,7 +60,7 @@ public class SecurityConfig {
                             .requestMatchers(
                                     HttpMethod.GET,"/api/game/**"
                             ).permitAll()
-                            .requestMatchers("/admin/page").permitAll()
+                            .requestMatchers("/admin/admin_page.html").permitAll()
                             .requestMatchers("/admin/**").hasRole("ADMIN")//API는 보호
                             .anyRequest().authenticated();
                 })
