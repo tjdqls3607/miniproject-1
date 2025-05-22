@@ -61,23 +61,34 @@ public class GameController {
                 .build()
         ));
     }
-	
+
 	@GetMapping("/list")
 	public List<GameDto> listGame(){
 		log.debug("list 출력");
-        return gameService.listGame(); 
+        return gameService.listGame();
 	}
-	
+
 	@GetMapping("/detail/{gameId}")
 	public GameDto detailGame(@PathVariable("gameId") Long gameId){
 		log.debug("detail 출력");
 		return gameService.detailGame(gameId);
 	}
-    
+
     @GetMapping("/search")
     public List<GameDto> searchGameLocation(@RequestParam("location") String location){
         log.debug("search 출력");
         return gameService.searchGameLocation(location);
     }
-	
+
+
+//    // 관리자 페이지 컨트롤러
+//    @GetMapping ("/admin/games")
+//    public ResponseEntity<ResponseDTO<List<GameDto>>> listGameAdmin(
+//            @RequestParam(required = false) String status,
+//            @RequestParam(required = false) String location
+//    ){
+//        List<GameDto> filteredGames = gameService.filterGames(status, location);
+//        return ResponseEntity.ok(new ResponseDTO<>(ResponseCode.SUCCESS, filteredGames));
+//
+//    }
 }

@@ -1,11 +1,12 @@
 package com.mycom.myapp.common.entity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "User") // 테이블명은 PascalCase 유지
@@ -25,4 +26,13 @@ public class User extends BaseEntity{
 
     @Column(length = 500)
     private String profileImage; // 프로필 이미지 URL
+
+    // 권한 추가
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "role")
+    private List<String> roles = new ArrayList<>();
+
+    // email admin123@example.com
+    // password admin123
 }

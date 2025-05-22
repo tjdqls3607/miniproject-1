@@ -1,0 +1,130 @@
+<!-- src/main/resources/static/admin/admin_page.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>관리자 경기 관리 페이지</title>
+</head>
+<body>
+<h2>✅ 관리자 전용 경기 관리</h2>
+
+<!-- 필터 영역 -->
+<div>
+    <label>경기 상태:</label>
+    <select id="statusSelect"></select>
+
+    <label>경기 지역:</label>
+    <select id="locationSelect"></select>
+
+    <button onclick="filterGames()">조회</button>
+</div>
+
+<!-- 결과 영역 -->
+<table border="1">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>시간</th>
+        <th>장소</th>
+        <th>상태</th>
+    </tr>
+    </thead>
+    <tbody id="gameTableBody"></tbody>
+</table>
+
+<script>
+    const token = localStorage.getItem("token");
+
+    // ✅ 관리자 인증 검사
+    function validateAdminAccess() {
+        if (!token) {
+            alert("로그인이 필요합니다.");
+            window.location.href = "/index.html";
+            return false;
+        }
+
+        let payload;
+        try {
+            payload = JSON.parse(atob(token.split('.')[1]));
+        } catch (e) {
+            alert("토큰 파싱 실패. 다시 로그인해주세요.");
+            localStorage.removeItem("token");
+            window.location.href = "/index.html";
+            return false;
+        }
+
+        const roles = payload.roles || [];
+        if (!roles.includes("ROLE_ADMIN")) {
+            alert("관리자만 접근 가능합니다.");
+            window.location.href = "/index.html";
+            return false;
+        }
+
+        console.log("✅ 관리자 권한 확인됨");
+        return true;
+    }
+
+    // 공통코드 불러오기
+    async function loadCommonCodes(groupCode, selectId) {
+        const res = await fetch(`/api/common-code/${groupCode}`);
+        const data = await res.json();
+        const select = document.getElementById(selectId);
+        data.forEach(code => {
+            const opt = document.createElement("option");
+            opt.value = code.code;
+            opt.text = code.codeName;
+            select.appendChild(opt);
+        });
+    }
+
+    // 경기 필터링
+    async function filterGames() {
+        const status = document.getElementById("statusSelect").value;
+        const location = document.getElementById("locationSelect").value;
+
+        const res = await fetch(`/api/game/admin/games?status=${status}&location=${location}`, {
+            headers: { "Authorization": "Bearer " + token }
+        });
+
+        const { data } = await res.json();
+        renderTable(data);
+    }
+
+    function renderTable(data) {
+        const tbody = document.getElementById("gameTableBody");
+        tbody.innerHTML = "";
+        data.forEach(game => {
+            const row = `<tr>
+                <td>${game.id}</td>
+                <td>${game.time}</td>
+                <td>${game.location}</td>
+                <td>${game.matchStatus || '-'}</td>
+            </tr>`;
+            tbody.insertAdjacentHTML("beforeend", row);
+        });
+    }
+
+    // 초기화
+    window.onload = async () => {
+        if (!validateAdminAccess()) return;
+
+        await loadCommonCodes("MATCH_STATUS", "statusSelect");
+        await loadCommonCodes("LOCATION", "locationSelect");
+
+        try {
+            const res = await fetch('/api/game/admin/games', {
+                headers: { "Authorization": "Bearer " + token }
+            });
+
+            if (!res.ok) throw new Error("접근 권한이 없습니다.");
+
+            const result = await res.json();
+            renderTable(result.data);
+        } catch (e) {
+            alert(e.message);
+        }
+    };
+</script>
+
+</body>
+</html>
