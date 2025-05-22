@@ -11,7 +11,7 @@
             display: none;
         }
         .card-background::before {
-            content: ""; /* 가상 요소 생성 */
+            content: "";
             position: absolute;
             width: 100%;
             height: 100%;
@@ -19,20 +19,50 @@
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
-            opacity: 0.4; /* 투명도 조정 */
-            z-index: 0; /* 텍스트 위에 배경만 적용 */
+            opacity: 0.4;
+            z-index: 0;
         }
         .card-background .card-body {
-            position: relative; /* 내용은 가상 요소 위로 표시되도록 설정 */
+            position: relative;
             z-index: 1;
         }
-
     </style>
 </head>
 
-<script src="/assets/js/common.js"></script>
+<body class="m-4">
+<nav class="navbar">
+    <div class="container d-flex justify-content-center">
+        <a class="navbar-brand mx-auto" href="/index.html">
+            <img src="/assets/img/tikitaka-logo.png" alt="Tikitaka" height="100px">
+        </a>
+
+        <!-- 로그인 상태에 따라 변경될 영역 -->
+        <div id="loginCheck">
+            <a href="/user/login.html" class="btn btn-primary m-1" id="btnLogin">로그인</a>
+            <a href="/user/signup.html" class="btn btn-primary m-1" id="btnSignup">회원가입</a>
+
+            <a class="navbar-brand" href="/user/mypage.html">
+                <img id="userProfileImage" src="/assets/img/noProfile.png" alt="User"
+                     style="width:50px; height:50px; border-radius:50%; display:none;">
+            </a>
+            <button class="btn btn-outline-danger m-1" id="btnLogout" style="display:none;">로그아웃</button>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <form class="d-flex align-items-center justify-content-end">
+        <input class="form-control me-2 w-auto" type="search" placeholder="구장 검색" id="searchWord">
+        <button class="btn btn-outline-success me-2" type="submit" id="searchBtn">검색</button>
+        <a href="/game/gameupload.html" class="btn btn-success m-2" id="btnGameUpload">경기 업로드</a>
+    </form>
+    <div class="row" id="game-list">
+        <!-- JS로 카드 들어감 -->
+    </div>
+</div>
+
 <script>
-    window.onload = function() {
+    window.onload = function () {
         checkLogin();
         listGame();
 
@@ -51,16 +81,52 @@
         });
     }
 
+    function checkLogin() {
+        const token = localStorage.getItem("token");
+
+        const loginCheckBox = document.getElementById("loginCheck");
+        const btnLogin = document.getElementById("btnLogin");
+        const btnSignup = document.getElementById("btnSignup");
+        const btnLogout = document.getElementById("btnLogout");
+        const profileImg = document.getElementById("userProfileImage");
+
+        // 초기 숨김 → 로그인 여부 따라 제어
+        btnLogin.style.display = "none";
+        btnSignup.style.display = "none";
+        btnLogout.style.display = "none";
+        profileImg.style.display = "none";
+        loginCheckBox.style.display = "block";
+
+        if (!token) {
+            btnLogin.style.display = "inline-block";
+            btnSignup.style.display = "inline-block";
+            return;
+        }
+
+        btnLogout.style.display = "inline-block";
+        profileImg.style.display = "inline-block";
+
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const roles = payload.roles || [];
+
+        if (roles.includes("ROLE_ADMIN") && !document.getElementById("adminBtn")) {
+            const container = document.querySelector(".container.d-flex.justify-content-center");
+            const adminBtn = document.createElement("button");
+            adminBtn.innerText = "관리자 페이지";
+            adminBtn.id = "adminBtn";
+            adminBtn.className = "btn btn-warning m-1";
+            adminBtn.onclick = () => window.location.href = "/admin/admin_page.html";
+            container.appendChild(adminBtn);
+        }
+    }
+
     async function listGame() {
         let url = '/api/game/list';
-        try{
+        try {
             let response = await fetch(url);
-
             let data = await response.json();
-            console.log(data);
             makeListHtml(data);
-
-        }catch(error){
+        } catch (error) {
             console.log(error);
             alert('목록 처리 중 오류 발생!');
         }
@@ -69,7 +135,6 @@
     function makeListHtml(list) {
         let listHTML = ``;
 
-        // list 배열을 순회하면서 카드 형식으로 HTML을 추가
         list.forEach(el => {
             let id = el.id;
             let againstPeople = el.againstPeople;
@@ -79,7 +144,6 @@
             let time = el.time;
             let timeStr = makeDateStr(time);
 
-            // 게임 정보에 맞는 카드 구조 생성
             listHTML += `
                 <div class="col-md-3 mb-3">
                     <div class="card card-background" style="height: 13rem; cursor:pointer;" data-id="${id}">
@@ -92,28 +156,26 @@
                     </div>
                 </div>`;
         });
-        // HTML에 카드 목록을 삽입
+
         document.querySelector("#game-list").innerHTML = listHTML;
 
-        // 동적으로 생성된 카드에 클릭 이벤트 추가
         document.querySelectorAll(".card").forEach(el => {
             el.onclick = function () {
-                let gameId = this.getAttribute("data-id"); // 카드의 data-id 속성에서 id 가져오기
-                window.location.href = `/game/matching.html?id=${gameId}`; // 가져온 id를 URL에 포함
+                let gameId = this.getAttribute("data-id");
+                window.location.href = `/game/matching.html?id=${gameId}`;
             };
         });
     }
 
     function searchGameLocation() {
-        const searchWord = document.getElementById("searchWord").value.trim(); // 검색어 입력값 가져오기
+        const searchWord = document.getElementById("searchWord").value.trim();
 
         if (!searchWord) {
             alert("검색어를 입력해주세요!");
             return;
         }
 
-        let url = `/api/game/search?location=${searchWord}`; // 검색 API 호출 URL
-        console.log(searchWord);
+        let url = `/api/game/search?location=${searchWord}`;
 
         fetch(url)
             .then(response => response.json())
@@ -122,7 +184,7 @@
                     alert("검색 결과가 없습니다.");
                     return;
                 }
-                makeListHtml(data); // 기존의 makeListHtml 재활용
+                makeListHtml(data);
             })
             .catch(error => {
                 console.error(error);
@@ -130,39 +192,10 @@
             });
     }
 
-
+    function makeDateStr(time) {
+        const date = new Date(time);
+        return date.toLocaleString(); // 간단한 날짜 포맷
+    }
 </script>
-
-<body class="m-4">
-<nav class="navbar">
-    <div class="container d-flex justify-content-center">
-        <a class="navbar-brand mx-auto" href="/index.html">
-            <img src="/assets/img/tikitaka-logo.png" alt="Tikitaka" height="100px">
-        </a>
-
-        <!-- 로그인이 안되어있으면 로그인이 뜨고 되어있으며 프로필이미지가 뜨게 -->
-        <div id="loginCheck">
-            <a href="/user/login.html" class="btn btn-primary m-1" id="btnLogin">로그인</a>
-            <a href="/user/signup.html" class="btn btn-primary" id="btnSignup">회원가입</a>
-
-            <a class="navbar-brand" href="/user/mypage.html">
-                <img id="userProfileImage" src="/assets/img/noProfile.png" alt="User" style="width:50px; height:50px; border-radius:50%;">
-            </a>
-            <button class="btn btn-outline-danger m-1" id="btnLogout">로그아웃</button>
-        </div>
-    </div>
-</nav>
-
-<div class="container">
-    <form class="d-flex align-items-center justify-content-end">
-        <input class="form-control me-2 w-auto" type="search" placeholder="구장 검색" id="searchWord">
-        <button class="btn btn-outline-success me-2" type="submit" id="searchBtn">검색</button>
-        <a href="/game/gameupload.html" class="btn btn-success m-2 " id="btnGameUpload">경기 업로드</a>
-    </form>
-    <div class="row" id="game-list">
-        <!-- JavaScript로 카드 내용이 여기에 추가됨 -->
-    </div>
-</div>
-
 </body>
 </html>

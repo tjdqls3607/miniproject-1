@@ -69,6 +69,7 @@ public class JwtTokenProvider {
 
         Map<String, Object> claims = new HashMap<>();
         claims.put(AUTH_ID, user.get().getId());
+        claims.put("roles", user.get().getRoles()); //추가
         String accessToken = createAccessToken(claims, user.get().getId());
 
         return accessToken;
@@ -116,9 +117,18 @@ public class JwtTokenProvider {
                 throw new UnauthorizedException(ResponseCode.INVALID_TOKEN);
             }
 
+//            CustomUserDetails principal = new CustomUserDetails(user.get());
+
+            // 추가
+            List<String> roles = (List<String>) claims.get("roles");
+            List<GrantedAuthority> authorities = roles.stream()
+                    .map(SimpleGrantedAuthority::new)
+                    .collect(Collectors.toList());
+
             CustomUserDetails principal = new CustomUserDetails(user.get());
 
-            return new UsernamePasswordAuthenticationToken(principal, null, null);
+            return new UsernamePasswordAuthenticationToken(principal, null, authorities);
+
         } catch (Exception e) {
             throw new UnauthorizedException(ResponseCode.INVALID_TOKEN);
         }

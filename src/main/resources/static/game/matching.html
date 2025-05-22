@@ -110,7 +110,19 @@ async function GameDetail() {
         document.getElementById('game-participants-max').textContent = game.participantMax;
         document.getElementById('game-against-people').textContent = game.againstPeople;
         document.getElementById('game-info').textContent = game.gameInfo;
-        document.getElementById('game-noti').textContent = game.gameNoti;
+        
+        if (Array.isArray(game.gameNoti)) {
+            const gameNotiContainer = document.getElementById('game-noti');
+            gameNotiContainer.innerHTML = ''; // 기존 내용을 초기화
+            game.gameNoti.forEach(noti => {
+                const notiItem = document.createElement('div');
+                notiItem.textContent = `${noti.notiCodeName}: ${noti.notiCodeDesc}`;
+                gameNotiContainer.appendChild(notiItem);
+            });
+        } else {
+            document.getElementById('game-noti').textContent = "공지사항이 없습니다.";
+        }
+        
     } catch (error) {
         console.error(error);
         alert('Error loading game details.');

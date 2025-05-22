@@ -18,7 +18,6 @@ import com.mycom.myapp.common.entity.User;
 import com.mycom.myapp.common.enums.ResponseCode;
 import com.mycom.myapp.domain.game.dto.GameCreateRequest;
 import com.mycom.myapp.domain.game.dto.GameDto;
-import com.mycom.myapp.domain.user.UserService;
 import com.mycom.myapp.domain.userGame.UserGameService;
 
 import jakarta.validation.Valid;
@@ -31,7 +30,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class GameController {
     private final GameService gameService;
-    private final UserService userService;
     private final JwtTokenProvider jwtTokenProvider;
     private final UserGameService userGameService;
 
@@ -67,23 +65,33 @@ public class GameController {
                 .build()
         ));
     }
-	
+
 	@GetMapping("/list")
 	public List<GameDto> listGame(){
 		log.debug("list 출력");
-        return gameService.listGame(); 
+        return gameService.listGame();
 	}
-	
+
 	@GetMapping("/detail/{gameId}")
 	public GameDto detailGame(@PathVariable("gameId") Long gameId){
 		log.debug("detail 출력");
 		return gameService.detailGame(gameId);
 	}
-    
+
     @GetMapping("/search")
     public List<GameDto> searchGameLocation(@RequestParam("location") String location){
         log.debug("search 출력");
         return gameService.searchGameLocation(location);
     }
 
+//    // 관리자 페이지 컨트롤러
+//    @GetMapping ("/admin/games")
+//    public ResponseEntity<ResponseDTO<List<GameDto>>> listGameAdmin(
+//            @RequestParam(required = false) String status,
+//            @RequestParam(required = false) String location
+//    ){
+//        List<GameDto> filteredGames = gameService.filterGames(status, location);
+//        return ResponseEntity.ok(new ResponseDTO<>(ResponseCode.SUCCESS, filteredGames));
+//
+//    }
 }
