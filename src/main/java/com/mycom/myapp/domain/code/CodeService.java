@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.mycom.myapp.common.entity.Code;
@@ -105,5 +106,9 @@ public class CodeService {
         }
 
         return codeResultDto;
+    }
+
+    public List<Code> getCodesByGroupCode(String groupCode) {
+        return codeRepository.findByGroupCode(groupCode);
     }
 }

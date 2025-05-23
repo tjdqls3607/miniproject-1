@@ -34,12 +34,19 @@
     </div>
     <div class="mb-3">
         <label class="form-label">경기 소개</label>
-        <textarea class="form-control" id="gameInfo" rows="3" value="test" required></textarea>
+        <textarea class="form-control" id="gameInfo" rows="3" required></textarea>
     </div>
     <div class="mb-3">
         <label class="form-label">공지사항</label>
-        <textarea class="form-control" id="gameNoti" rows="2" value="test" required></textarea>
+        <textarea class="form-control" id="gameNoti" rows="2" required></textarea>
     </div>
+
+    <!-- ✅ 공통 코드 체크박스 -->
+    <div class="mb-3">
+        <label class="form-label">경기 옵션</label>
+        <div id="gameOptionsContainer"></div>
+    </div>
+
     <button type="submit" class="btn btn-primary">업로드</button>
     <a href="../index.html" class="btn btn-link">홈 화면</a>
 </form>
@@ -47,6 +54,21 @@
 <div id="resultMsg" class="mt-3"></div>
 
 <script>
+    // ✅ 공통코드 체크박스 렌더링
+    fetch("/api/common-code/options")
+        .then(res => res.json())
+        .then(data => {
+            const container = document.getElementById("gameOptionsContainer");
+            data.forEach(code => {
+                const checkbox = `
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="gameOptions" value="${code.code}" id="opt_${code.code}">
+                        <label class="form-check-label" for="opt_${code.code}">${code.codeName}</label>
+                    </div>`;
+                container.innerHTML += checkbox;
+            });
+        });
+
     document.getElementById("gameForm").addEventListener("submit", async function (e) {
         e.preventDefault();
 
@@ -56,6 +78,9 @@
             return;
         }
 
+        const selectedOptions = [...document.querySelectorAll("input[name='gameOptions']:checked")]
+            .map(cb => cb.value);  // 예: ["050_001", "050_003"]
+
         const payload = {
             location: document.getElementById("location").value,
             time: document.getElementById("time").value,
@@ -64,7 +89,8 @@
             participantMax: parseInt(document.getElementById("participantMax").value),
             againstPeople: document.getElementById("againstPeople").value,
             gameInfo: document.getElementById("gameInfo").value,
-            gameNoti: document.getElementById("gameNoti").value
+            gameNoti: document.getElementById("gameNoti").value,
+            gameOptions: selectedOptions
         };
 
         try {
@@ -78,7 +104,6 @@
             });
 
             const result = await res.json();
-
             if (res.status === 201 && result.code === "POST_OR_PATCH_SUCCESS") {
                 alert("경기 업로드 성공!");
                 window.location.href = "../index.html";
@@ -89,6 +114,35 @@
             document.getElementById("resultMsg").innerText = "요청 중 오류 발생";
         }
     });
+
+        // ✅ 옵션 체크박스 렌더링
+        fetch("/api/common-code/options")
+        .then(res => res.json())
+        .then(result => {
+        const data = result.data;
+        const container = document.getElementById("gameOptionsContainer");
+
+        data.forEach(code => {
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.name = "gameOptions";
+        checkbox.value = code.code;
+        checkbox.id = code.code;
+
+        const label = document.createElement("label");
+        label.htmlFor = code.code;
+        label.innerText = code.codeName;
+
+        container.appendChild(checkbox);
+        container.appendChild(label);
+        container.appendChild(document.createElement("br"));
+    });
+    })
+        .catch(err => {
+        console.error("공통코드 불러오기 실패", err);
+        document.getElementById("gameOptionsContainer").innerHTML = "❌ 코드 로딩 실패";
+    });
+
 </script>
 </body>
 </html>

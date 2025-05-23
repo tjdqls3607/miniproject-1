@@ -42,4 +42,9 @@ public class Game extends BaseEntity{
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User host; // 매치 주최자
+
+    // 공통코드땜에 버려도 되는거
+    @Column(name = "game_options")
+    private String gameOptions;
+
 }

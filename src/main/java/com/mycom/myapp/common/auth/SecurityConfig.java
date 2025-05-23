@@ -62,6 +62,7 @@ public class SecurityConfig {
                             ).permitAll()
                             .requestMatchers("/admin/admin_page.html").permitAll()
                             .requestMatchers("/admin/**").hasRole("ADMIN")//API는 보호
+                            .requestMatchers("/api/common-code/**").permitAll()
                             .anyRequest().authenticated();
                 })
                 .authenticationProvider(daoAuthenticationProvider())

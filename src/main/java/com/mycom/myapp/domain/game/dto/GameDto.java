@@ -1,6 +1,7 @@
 package com.mycom.myapp.domain.game.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import com.mycom.myapp.common.entity.User;
 
@@ -26,4 +27,7 @@ public class GameDto {
     private String gameInfo; // 구장 정보
     private String gameNoti; // 구장 안내사항
     private User host; // 매치 주최자
+
+    // ✅ 추가된 필드 이거도 버려도 되는거
+    private List<String> gameOptions;
 }

@@ -24,4 +24,11 @@ public class CodeDto {
                 .orderNo(code.getOrderNo())
                 .build();
     }
+
+    public static CodeDto fromEntity(Code code) {
+        return CodeDto.builder()
+                .code(code.getCodeKey().getCode())
+                .codeName(code.getCodeName())
+                .build();
+    }
 }
