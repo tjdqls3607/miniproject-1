@@ -19,4 +19,9 @@ public class Code {
 
     @Column(name="order_no")
     private int orderNo;
+
+    public String getCode() {
+        return codeKey.getCode();  // 내부 키에서 꺼내옴
+    }
+
 }

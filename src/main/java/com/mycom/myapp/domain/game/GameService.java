@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.mycom.myapp.common.entity.Game;
 import com.mycom.myapp.common.enums.ResponseCode;
 import com.mycom.myapp.common.error.exceptions.NotFoundException;
+import com.mycom.myapp.domain.code.CodeService;
 import com.mycom.myapp.domain.game.dto.GameDto;
 
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 public class GameService {
 
 	private final GameRepository gameRepository;
+	private final CodeService codeService;
 
 	public Game save(Game game) {
 		return gameRepository.save(game);
@@ -29,12 +31,10 @@ public class GameService {
 
 	public List<GameDto> listGame() {
 		List<Game> games = gameRepository.findAll();
-
-
 		List<GameDto> gamesDtoList = new ArrayList<>();
-		games.forEach( game -> {
 
-			if(game.getDeadline().isAfter(LocalDateTime.now()) && game.getTime().isAfter(LocalDateTime.now())) { // 마감시간, 시작시간 지나지 않은 것만
+		games.forEach(game -> {
+			if (game.getDeadline().isAfter(LocalDateTime.now()) && game.getTime().isAfter(LocalDateTime.now())) {
 				GameDto gameDto = GameDto.builder()
 						.id(game.getId())
 						.location(game.getLocation())
@@ -48,47 +48,47 @@ public class GameService {
 						.build();
 				gamesDtoList.add(gameDto);
 			}
-
 		});
 
 		gamesDtoList.sort(Comparator.comparing(GameDto::getTime));
-
 		return gamesDtoList;
 	}
 
 	public GameDto detailGame(long gameId) {
-		GameDto gameDto = new GameDto();
-
 		Optional<Game> gameOptional = gameRepository.findById(gameId);
-		gameOptional.ifPresentOrElse(
-				game -> {
-					gameDto.setId(game.getId());
-					gameDto.setLocation(game.getLocation());
-					gameDto.setTime(game.getTime());
-					gameDto.setDeadline(game.getDeadline());
-					gameDto.setParticipantMin(game.getParticipantMin());
-					gameDto.setParticipantMax(game.getParticipantMax());
-					gameDto.setAgainstPeople(game.getAgainstPeople());
-					gameDto.setGameInfo(game.getGameInfo());
-					gameDto.setGameNoti(game.getGameNoti());
-				},
-				() -> {
-					throw new NotFoundException(ResponseCode.NOT_FOUND_GAME);
-				}
 
-		);
+		return gameOptional.map(game -> {
+			GameDto gameDto = new GameDto();
+			gameDto.setId(game.getId());
+			gameDto.setLocation(game.getLocation());
+			gameDto.setTime(game.getTime());
+			gameDto.setDeadline(game.getDeadline());
+			gameDto.setParticipantMin(game.getParticipantMin());
+			gameDto.setParticipantMax(game.getParticipantMax());
+			gameDto.setAgainstPeople(game.getAgainstPeople());
+			gameDto.setGameNoti(game.getGameNoti());
 
-		return gameDto;
+			// ✅ gameOptions를 코드 이름으로 변환 후 gameInfo에 세팅
+			if (game.getGameOptions() != null) {
+				List<String> codeList = List.of(game.getGameOptions().split(","));
+				List<String> codeNames = codeList.stream()
+						.map(code -> codeService.getCodeName("050", code))
+						.toList();
+				gameDto.setGameInfo(String.join(", ", codeNames));
+			} else {
+				gameDto.setGameInfo(null);
+			}
+
+			return gameDto;
+		}).orElseThrow(() -> new NotFoundException(ResponseCode.NOT_FOUND_GAME));
 	}
 
 	public List<GameDto> searchGameLocation(String location) {
 		List<Game> games = gameRepository.findByLocationLike("%" + location + "%");
-
-
 		List<GameDto> gamesDtoList = new ArrayList<>();
-		games.forEach( game -> {
 
-			if(game.getDeadline().isAfter(LocalDateTime.now()) && game.getTime().isAfter(LocalDateTime.now())) { // 마감시간, 시작시간 지나지 않은 것만
+		games.forEach(game -> {
+			if (game.getDeadline().isAfter(LocalDateTime.now()) && game.getTime().isAfter(LocalDateTime.now())) {
 				GameDto gameDto = GameDto.builder()
 						.id(game.getId())
 						.location(game.getLocation())
@@ -102,11 +102,9 @@ public class GameService {
 						.build();
 				gamesDtoList.add(gameDto);
 			}
-
 		});
 
 		gamesDtoList.sort(Comparator.comparing(GameDto::getTime));
-
 		return gamesDtoList;
 	}
 }

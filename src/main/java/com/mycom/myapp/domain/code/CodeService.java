@@ -4,11 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import com.mycom.myapp.common.error.exceptions.NotFoundException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.mycom.myapp.common.entity.Code;
 import com.mycom.myapp.common.entity.key.CodeKey;
+import com.mycom.myapp.common.enums.ResponseCode;
 
 import lombok.RequiredArgsConstructor;
 
@@ -111,4 +113,12 @@ public class CodeService {
     public List<Code> getCodesByGroupCode(String groupCode) {
         return codeRepository.findByGroupCode(groupCode);
     }
+
+    public String getCodeName(String groupCode, String code) {
+        CodeKey key = new CodeKey(groupCode, code);
+        Code codeEntity = codeRepository.findById(key)
+                .orElseThrow(() -> new NotFoundException(ResponseCode.NOT_FOUND_COMMON_CODE));
+        return codeEntity.getCodeName();
+    }
+
 }
