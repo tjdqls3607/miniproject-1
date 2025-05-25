@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import com.mycom.myapp.common.error.exceptions.BadRequestException;
 import com.mycom.myapp.common.error.exceptions.NotFoundException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -120,5 +121,32 @@ public class CodeService {
                 .orElseThrow(() -> new NotFoundException(ResponseCode.NOT_FOUND_COMMON_CODE));
         return codeEntity.getCodeName();
     }
+
+    public void deleteCode(String groupCode, String code) {
+        CodeKey key = new CodeKey(groupCode, code);
+        codeRepository.deleteById(key);
+    }
+
+    public void addCode(String groupCode, String code, String codeName) {
+        CodeKey key = new CodeKey(groupCode, code);
+
+        // 중복 검사
+        if (codeRepository.existsById(key)) {
+            throw new BadRequestException(ResponseCode.INVALID_REQUEST, "이미 존재하는 코드입니다.");
+        }
+
+        Code entity = new Code();
+        entity.setCodeKey(key);
+        entity.setCodeName(codeName);
+        entity.setOrderNo(0); // 기본값 또는 정렬용 우선순위. 필요 시 수정
+
+        codeRepository.save(entity);
+    }
+
+    // 오버로드 버전도 제공 (DTO 기반)
+    public void addCode(CodeDto dto) {
+        addCode(dto.getNotiCode(), dto.getCode(), dto.getCodeName());
+    }
+
 
 }
